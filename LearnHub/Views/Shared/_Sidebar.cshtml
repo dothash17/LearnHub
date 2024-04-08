@@ -1,0 +1,89 @@
+﻿@using LearnHub.Interfaces
+@inject IUserService _userService
+@model LearnHub.Models.Users
+
+@{
+    var isUserAuthenticated = await _userService.IsUserAuthenticatedAsync();
+}
+
+@if (isUserAuthenticated)
+{
+    <div class="sidebar">
+        <ul>
+            <li><button class="transparent-button" href="/Account/Profile"><i class="fas fa-user"></i> @Model.Username</button></li>
+            <li><button class="transparent-button"><i class="fas fa-book"></i> Курсы</button></li>
+            <li><button class="transparent-button"><i class="fas fa-graduation-cap"></i> Уроки</button></li>
+        </ul>
+        <ul class="bottom-list">
+            <hr class="sidebar-divider">
+            <li><button class="transparent-button"><i class="fas fa-cog"></i> Настройки аккаунта</button></li>
+            <li><button class="transparent-button" asp-controller="Account" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> Выйти из аккаунта</button></li>
+        </ul>
+    </div>
+}
+else
+{
+    <div class="sidebar">
+        <ul>
+            <li><button class="transparent-button" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fas fa-sign-in"></i> Войти</button></li>
+            <li><button class="transparent-button"><i class="fas fa-book"></i> Курсы</button></li>
+        </ul>
+        <ul class="bottom-list">
+            <hr class="sidebar-divider">
+        </ul>
+    </div>
+}
+
+<div class="modal fade dark-modal" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-md-down">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="d-flex">
+                    <button type="button" class="full-width-btn login active" onclick="showLogin()">Вход</button>
+                    <button type="button" class="full-width-btn register" onclick="showRegister()">Регистрация</button>
+                </div>
+                <form method="post" asp-controller="Account" asp-action="Login">
+                <div id="loginForm" class="login-page">
+                    <div class="mb-3">
+                        <label for="usernameOrEmailInput" class="form-label" onclick="return false">Email</label>
+                        <input asp-for="Username" type="text" class="form-control" id="usernameOrEmailInput" placeholder="Введите email или имя пользователя" required>
+                    </div>
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <label for="passwordInput" class="form-label" onclick="return false">Пароль</label>
+                            </div>
+                            <div class="col text-end">
+                                <a href="#">Забыли пароль?</a>
+                            </div>
+                        </div>
+                        <input asp-for="Password" type="password" class="form-control" id="passwordLogin" placeholder="Введите пароль" required>
+                    </div>
+                    <button type="submit" class="login-button">Войти</button>
+                </div>
+                </form>
+                <form method="post" asp-controller="Account" asp-action="Register">
+                    <div id="registerForm" class="login-page" style="display: none;">
+                        <div class="mb-3">
+                            <label for="usernameInput" class="form-label" onclick="return false">Имя пользователя</label>
+                            <input asp-for="Username" type="text" class="form-control" id="usernameInput" placeholder="Введите имя пользователя" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="emailInput" class="form-label" onclick="return false">Email</label>
+                            <input asp-for="Mail" type="email" class="form-control" id="emailInput" placeholder="Введите email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordInput" class="form-label" onclick="return false">Пароль</label>
+                            <input asp-for="Password" type="password" class="form-control" id="passwordRegister" placeholder="Введите пароль" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPasswordInput" class="form-label" onclick="return false">Повторите пароль</label>
+                            <input type="password" class="form-control" id="confirmPasswordInput" placeholder="Повторите пароль" required>
+                        </div>
+                        <button type="submit" class="login-button">Зарегистрироваться</button>
+                    </div>
+                </form>               
+            </div>
+        </div>
+    </div>
+</div>
