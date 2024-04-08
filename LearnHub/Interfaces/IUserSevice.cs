@@ -10,6 +10,5 @@ namespace LearnHub.Interfaces
         Task<Users> GetUserByIdAsync(int userId);
         Task<Users> GetUserByUsernameAsync(string username);
         Task UpdateUserAsync(Users user);
-        Task DeleteUserAsync(int userId);
     }
 }

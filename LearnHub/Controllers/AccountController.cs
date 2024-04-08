@@ -19,6 +19,12 @@ namespace LearnHub.Controllers
         }
 
         [HttpGet]
+        public IActionResult Profile()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult Register()
         {
             return View();
@@ -36,7 +42,7 @@ namespace LearnHub.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError(string.Empty, $"Ошибка при создании пользователя: {ex.Message}");
+                    ModelState.AddModelError(string.Empty, $"Ошибка при регистрации: {ex.Message}");
                 }
             }
             return View(model);
@@ -49,33 +55,34 @@ namespace LearnHub.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string usernameOrEmail, string password)
+        public async Task<IActionResult> Login(string username, string password)
         {
-            var user = await _userService.GetUserByUsernameAsync(usernameOrEmail);
+            var user = await _userService.GetUserByUsernameAsync(username);
+
             if (user != null && user.Password == password)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Email, user.Mail)
-                    // You can add more claims here as needed
+                    new Claim(ClaimTypes.Name, user.Username)
                 };
 
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                HttpContext.Session.SetString("CurrentUser", user.Username);
 
                 return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid username or password");
+            ModelState.AddModelError(string.Empty, "Неверное имя пользователя или пароль");
             return View();
         }
 
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Remove("CurrentUser");
             return RedirectToAction("Index", "Home");
         }
     }

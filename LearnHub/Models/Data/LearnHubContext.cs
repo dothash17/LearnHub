@@ -41,7 +41,7 @@ public partial class LearnHubContext : DbContext
     public virtual DbSet<Users> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-ID583BI\\SQLEXPRESS;Initial Catalog=LearnHub;Integrated Security=True;Encrypt=True");
+        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-ID583BI\\SQLEXPRESS;Initial Catalog=LearnHub;Integrated Security=True;Encrypt=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

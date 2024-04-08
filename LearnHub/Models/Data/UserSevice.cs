@@ -18,7 +18,7 @@ namespace LearnHub.Models.Data
         public async Task<bool> IsUserAuthenticatedAsync()
         {
             var currentUser = _httpContextAccessor.HttpContext.Session.GetString("CurrentUser");
-            return await Task.FromResult(!string.IsNullOrEmpty(currentUser));
+            return !string.IsNullOrEmpty(currentUser);
         }
 
         public async Task CreateUserAsync(Users user)
@@ -31,8 +31,7 @@ namespace LearnHub.Models.Data
             }
             catch (Exception ex)
             {
-                // Обрабатываем ошибку сохранения пользователя
-                throw new Exception($"Ошибка при создании пользователя: {ex.Message}");
+                throw new Exception($"Ошибка при регистрации: {ex.Message}");
             }
         }
 
@@ -56,16 +55,6 @@ namespace LearnHub.Models.Data
             catch (Exception ex)
             {
                 throw new Exception($"Ошибка при обновлении пользователя: {ex.Message}");
-            }
-        }
-
-        public async Task DeleteUserAsync(int userId)
-        {
-            var user = await _context.Users.FindAsync(userId);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
             }
         }
     }
