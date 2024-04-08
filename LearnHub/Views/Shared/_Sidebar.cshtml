@@ -43,46 +43,46 @@ else
                     <button type="button" class="full-width-btn register" onclick="showRegister()">Регистрация</button>
                 </div>
                 <form method="post" asp-controller="Account" asp-action="Login">
-                <div id="loginForm" class="login-page">
-                    <div class="mb-3">
-                        <label for="usernameInput" class="form-label" onclick="return false">Email</label>
-                        <input asp-for="Username" type="text" class="form-control" id="usernameInput" placeholder="Введите имя пользователя" required>
-                    </div>
-                    <div class="mb-3">
-                        <div class="row">
-                            <div class="col">
-                                <label for="passwordInput" class="form-label" onclick="return false">Пароль</label>
-                            </div>
-                            <div class="col text-end">
-                                <a href="#">Забыли пароль?</a>
-                            </div>
+                    <div id="loginForm" class="login-page">
+                        <div class="mb-3">
+                            <label for="usernameLogin" class="form-label" onclick="return false">Email</label>
+                            <input asp-for="Username" type="text" name="Username" class="form-control" id="usernameLogin" placeholder="Введите имя пользователя" required>
                         </div>
-                        <input asp-for="Password" type="password" class="form-control" id="passwordLogin" placeholder="Введите пароль" required>
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="passwordLogin" class="form-label" onclick="return false">Пароль</label>
+                                </div>
+                                <div class="col text-end">
+                                    <a href="#">Забыли пароль?</a>
+                                </div>
+                            </div>
+                            <input asp-for="Password" type="password" name="Password" class="form-control" id="passwordLogin" placeholder="Введите пароль" required>
+                        </div>
+                        <button type="submit" class="login-button">Войти</button>
                     </div>
-                    <button type="submit" class="login-button">Войти</button>
-                </div>
                 </form>
                 <form method="post" asp-controller="Account" asp-action="Register">
                     <div id="registerForm" class="login-page" style="display: none;">
                         <div class="mb-3">
                             <label for="usernameInput" class="form-label" onclick="return false">Имя пользователя</label>
-                            <input asp-for="Username" type="text" class="form-control" id="usernameInput" placeholder="Введите имя пользователя" required>
+                            <input asp-for="Username" type="text" class="form-control" id="usernameRegister" placeholder="Введите имя пользователя" required>
                         </div>
                         <div class="mb-3">
-                            <label for="emailInput" class="form-label" onclick="return false">Email</label>
-                            <input asp-for="Mail" type="email" class="form-control" id="emailInput" placeholder="Введите email" required>
+                            <label for="emailRegister" class="form-label" onclick="return false">Email</label>
+                            <input asp-for="Mail" type="email" class="form-control" id="emailRegister" placeholder="Введите email" required>
                         </div>
                         <div class="mb-3">
-                            <label for="passwordInput" class="form-label" onclick="return false">Пароль</label>
+                            <label for="passwordRegiser" class="form-label" onclick="return false">Пароль</label>
                             <input asp-for="Password" type="password" class="form-control" id="passwordRegister" placeholder="Введите пароль" required>
                         </div>
                         <div class="mb-3">
-                            <label for="confirmPasswordInput" class="form-label" onclick="return false">Повторите пароль</label>
-                            <input type="password" class="form-control" id="confirmPasswordInput" placeholder="Повторите пароль" required>
+                            <label for="confirmPasswordRegister" class="form-label" onclick="return false">Повторите пароль</label>
+                            <input type="password" class="form-control" id="confirmPasswordRegister" placeholder="Повторите пароль" required>
                         </div>
                         <button type="submit" class="login-button">Зарегистрироваться</button>
                     </div>
-                </form>               
+                </form>
             </div>
         </div>
     </div>

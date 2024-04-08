@@ -34,7 +34,7 @@ namespace LearnHub.Controllers
         public async Task<IActionResult> Register(Users model)
         {
             if (ModelState.IsValid)
-            {
+            {         
                 try
                 {
                     await _userService.CreateUserAsync(model);
@@ -55,11 +55,11 @@ namespace LearnHub.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(Users model)
         {
-            var user = await _userService.GetUserByUsernameAsync(username);
+            var user = await _userService.GetUserByUsernameAsync(model.Username);
 
-            if (user != null && user.Password == password)
+            if (user != null && user.Password == model.Password)
             {
                 var claims = new List<Claim>
                 {
