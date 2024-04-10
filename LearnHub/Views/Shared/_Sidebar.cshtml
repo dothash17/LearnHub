@@ -46,14 +46,9 @@ else
                     <button type="button" class="full-width-btn login active" onclick="showLogin()">Вход</button>
                     <button type="button" class="full-width-btn register" onclick="showRegister()">Регистрация</button>
                 </div>
-                <form method="post" asp-controller="Account" asp-action="Login">
-                    <div id="loginForm" class="login-page">
-                        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
-                        {
-                            <div class="alert alert-danger" role="alert">
-                                @ViewBag.ErrorMessage
-                            </div>
-                        }
+                <form id="loginForm" method="post" asp-controller="Account" asp-action="Login">
+                    <div class="login-page">
+                        <div id="loginError" class="text-danger text-center"></div>
                         <div class="mb-3">
                             <label for="usernameLogin" class="form-label" onclick="return false">Имя пользователя</label>
                             <input asp-for="Username" type="text" name="Username" class="form-control" id="usernameLogin" placeholder="Введите имя пользователя" required>
@@ -69,11 +64,12 @@ else
                             </div>
                             <input asp-for="Password" type="password" name="Password" class="form-control" id="passwordLogin" placeholder="Введите пароль" required>
                         </div>
-                        <button type="submit" class="login-button">Войти</button>
+                        <button type="button" class="login-button" onclick="validateLoginForm()">Войти</button>
                     </div>
                 </form>
-                <form method="post" asp-controller="Account" asp-action="Register">
-                    <div id="registerForm" class="login-page" style="display: none;">
+                <form id="registerForm" method="post" asp-controller="Account" asp-action="Register" style="display: none;">
+                    <div class="login-page">
+                        <div id="registerError" class="text-danger text-center"></div>
                         <div class="mb-3">
                             <label for="usernameInput" class="form-label" onclick="return false">Имя пользователя</label>
                             <input asp-for="Username" type="text" class="form-control" id="usernameRegister" placeholder="Введите имя пользователя" required>
@@ -83,14 +79,14 @@ else
                             <input asp-for="Mail" type="email" class="form-control" id="emailRegister" placeholder="Введите email" required>
                         </div>
                         <div class="mb-3">
-                            <label for="passwordRegiser" class="form-label" onclick="return false">Пароль</label>
+                            <label for="passwordRegister" class="form-label" onclick="return false">Пароль</label>
                             <input asp-for="Password" type="password" class="form-control" id="passwordRegister" placeholder="Введите пароль" required>
                         </div>
                         <div class="mb-3">
                             <label for="confirmPasswordRegister" class="form-label" onclick="return false">Повторите пароль</label>
-                            <input type="password" class="form-control" id="confirmPasswordRegister" placeholder="Повторите пароль" required>
+                            <input type="password" class="form-control" id="confirmPasswordRegister" name="confirmPassword" placeholder="Повторите пароль" required>
                         </div>
-                        <button type="submit" class="login-button">Зарегистрироваться</button>
+                        <button type="button" class="login-button" onclick="validateRegisterForm()">Зарегистрироваться</button>
                     </div>
                 </form>
             </div>

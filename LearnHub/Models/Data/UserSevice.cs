@@ -45,6 +45,11 @@ namespace LearnHub.Models.Data
             return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         }
 
+        public async Task<Users> GetUserByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(m => m.Mail == email);
+        }
+
         public async Task UpdateUserAsync(Users user)
         {
             try

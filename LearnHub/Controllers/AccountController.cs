@@ -38,33 +38,44 @@ namespace LearnHub.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(Users model)
+        public async Task<IActionResult> Register(Users model, string confirmPassword)
         {
-            if (ModelState.IsValid)
-            {         
-                try
-                {
-                    await _userService.CreateUserAsync(model);
-
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, model.Username)
-                    };
-
-                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var principal = new ClaimsPrincipal(identity);
-
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-                    HttpContext.Session.SetString("CurrentUser", model.Username);
-
-                    return RedirectToAction("Index", "Home");
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError(string.Empty, $"Ошибка при регистрации: {ex.Message}");
-                }
+            if (string.IsNullOrEmpty(model.Username) || string.IsNullOrEmpty(model.Password))
+            {
+                return BadRequest("Не все поля заполнены");
             }
-            return View(model);
+
+            var existingUser = await _userService.GetUserByUsernameAsync(model.Username);
+            if (existingUser != null)
+            {
+                return BadRequest("Пользователь с таким именем уже существует.");
+            }
+
+            existingUser = await _userService.GetUserByEmailAsync(model.Mail);
+            if (existingUser != null)
+            {
+                return BadRequest("Email уже используется другим пользователем.");
+            }
+
+            if (model.Password != confirmPassword)
+            {
+                return BadRequest("Пароли не совпадают");
+            }
+
+            await _userService.CreateUserAsync(model);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, model.Username)
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            HttpContext.Session.SetString("CurrentUser", model.Username);
+
+            return Ok();
         }
 
         [HttpGet]
@@ -76,31 +87,35 @@ namespace LearnHub.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(Users model)
         {
+            if (string.IsNullOrEmpty(model.Username) || string.IsNullOrEmpty(model.Password))
+            {
+                return BadRequest("Не все поля заполнены");
+            }
+
             var user = await _userService.GetUserByUsernameAsync(model.Username);
 
             if (user == null)
             {
-                ViewBag.ErrorMessage = "Пользователь с указанным именем не найден.";
-                return View();
+                return BadRequest("Пользователя с таким именем не существует.");
             }
 
-            if (user != null && user.Password == model.Password)
+            if (user.Password != model.Password)
             {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Username)
-                };
-
-                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var principal = new ClaimsPrincipal(identity);
-
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-                HttpContext.Session.SetString("CurrentUser", user.Username);
-
-                return RedirectToAction("Index", "Home");
+                return BadRequest("Пароль неверный.");
             }
-            ViewBag.ErrorMessage = "Имя пользователя и/или пароль не верны";
-            return View();
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username)
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            HttpContext.Session.SetString("CurrentUser", user.Username);
+
+            return Ok();
         }
         
         public async Task<IActionResult> Logout()
