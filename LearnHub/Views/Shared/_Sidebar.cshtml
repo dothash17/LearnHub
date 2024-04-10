@@ -10,14 +10,18 @@
 {
     <div class="sidebar">
         <ul>
-            <li><button class="transparent-button" asp-controller="Account" asp-action="Profile"><i class="fas fa-user"></i> Профиль</button></li>
-            <li><button class="transparent-button"><i class="fas fa-book"></i> Курсы</button></li>
-            <li><button class="transparent-button"><i class="fas fa-graduation-cap"></i> Уроки</button></li>
+            <li><a class="transparent-a mt-3" asp-controller="Account" asp-action="Profile"><i class="fas fa-user"></i> Профиль</a></li>
+            <li><a class="transparent-a" asp-controller="Home" asp-action="Index"><i class="fas fa-book"></i> Курсы</a></li>
+            <li><a class="transparent-a"><i class="fas fa-graduation-cap"></i> Уроки</a></li>
         </ul>
         <ul class="bottom-list">
             <hr class="sidebar-divider">
-            <li><button class="transparent-button"><i class="fas fa-cog"></i> Настройки аккаунта</button></li>
-            <li><button class="transparent-button" asp-controller="Account" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> Выйти из аккаунта</button></li>
+            <li><a class="transparent-a"><i class="fas fa-cog"></i> Настройки аккаунта</a></li>
+            <li>
+                <form method="post" asp-controller="Account" asp-action="Logout" id="logoutForm">
+                    <button class="transparent-a"><i class="fas fa-sign-out-alt"></i> Выйти из аккаунта</button>
+                </form>
+            </li>
         </ul>
     </div>
 }
@@ -25,8 +29,8 @@ else
 {
     <div class="sidebar">
         <ul>
-            <li><button class="transparent-button" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fas fa-sign-in"></i> Войти</button></li>
-            <li><button class="transparent-button"><i class="fas fa-book"></i> Курсы</button></li>
+            <li><a class="transparent-a mt-3" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fas fa-sign-in"></i> Войти</a></li>
+            <li><a asp-controller="Home" asp-action="Index" class="transparent-a"><i class="fas fa-book"></i> Курсы</a></li>
         </ul>
         <ul class="bottom-list">
             <hr class="sidebar-divider">
@@ -44,8 +48,14 @@ else
                 </div>
                 <form method="post" asp-controller="Account" asp-action="Login">
                     <div id="loginForm" class="login-page">
+                        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @ViewBag.ErrorMessage
+                            </div>
+                        }
                         <div class="mb-3">
-                            <label for="usernameLogin" class="form-label" onclick="return false">Email</label>
+                            <label for="usernameLogin" class="form-label" onclick="return false">Имя пользователя</label>
                             <input asp-for="Username" type="text" name="Username" class="form-control" id="usernameLogin" placeholder="Введите имя пользователя" required>
                         </div>
                         <div class="mb-3">

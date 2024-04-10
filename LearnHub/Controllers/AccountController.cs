@@ -19,9 +19,16 @@ namespace LearnHub.Controllers
         }
 
         [HttpGet]
-        public IActionResult Profile()
+        public async Task<IActionResult> Profile()
         {
-            return View();
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+
+            if (user == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View(user);
         }
 
         [HttpGet]
@@ -38,6 +45,18 @@ namespace LearnHub.Controllers
                 try
                 {
                     await _userService.CreateUserAsync(model);
+
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, model.Username)
+                    };
+
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var principal = new ClaimsPrincipal(identity);
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                    HttpContext.Session.SetString("CurrentUser", model.Username);
+
                     return RedirectToAction("Index", "Home");
                 }
                 catch (Exception ex)
@@ -59,6 +78,12 @@ namespace LearnHub.Controllers
         {
             var user = await _userService.GetUserByUsernameAsync(model.Username);
 
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = "Пользователь с указанным именем не найден.";
+                return View();
+            }
+
             if (user != null && user.Password == model.Password)
             {
                 var claims = new List<Claim>
@@ -74,11 +99,10 @@ namespace LearnHub.Controllers
 
                 return RedirectToAction("Index", "Home");
             }
-
-            ModelState.AddModelError(string.Empty, "Неверное имя пользователя или пароль");
+            ViewBag.ErrorMessage = "Имя пользователя и/или пароль не верны";
             return View();
         }
-
+        
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

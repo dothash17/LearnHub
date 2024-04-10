@@ -47,7 +47,7 @@ body {
         margin: 0;
     }
 
-        .sidebar ul li button {
+        .sidebar ul li a {
             width: 100%;
             padding: 10px;
             border: none;
@@ -56,11 +56,6 @@ body {
             text-align: left;
             cursor: pointer;
             margin-bottom: 5px;
-        }
-
-        .sidebar ul li:first-child button {
-            margin-top: 15px;
-            margin-bottom: 15px;
         }
 
 .bottom-list {
@@ -92,20 +87,22 @@ body {
         border-top: 1px solid #ddd;
     }
 
-.transparent-button {
+.transparent-a {
+    display: block;
     width: 100%;
     padding: 8px 10px;
     border: none;
     border-radius: 5px;
     background-color: transparent;
-    color: #007bff;
+    color: #fff; 
     text-align: left;
     cursor: pointer;
     margin-bottom: 5px;
     transition: background-color 0.3s;
+    text-decoration: none;
 }
 
-    .transparent-button:hover {
+    .transparent-a:hover {
         background-color: #ddd;
     }
 
