@@ -62,3 +62,51 @@ function validateRegisterForm() {
         }
     });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const slides = document.querySelectorAll('.slide');
+    const pagination = document.querySelector('.pagination');
+
+    slides.forEach((slide, index) => {
+        const dot = document.createElement('span');
+        dot.addEventListener('click', () => {
+            goToSlide(index);
+        });
+        pagination.appendChild(dot);
+    });
+
+    let currentSlide = 0;
+    updateSlider();
+
+    function updateSlider() {
+        slides.forEach((slide, index) => {
+            slide.style.display = index === currentSlide ? 'flex' : 'none';
+        });
+
+        const dots = pagination.querySelectorAll('span');
+        dots.forEach((dot, index) => {
+            if (index === currentSlide) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+        currentSlide = index;
+        updateSlider();
+    }
+
+    const prevBtn = document.querySelector('.prev');
+    const nextBtn = document.querySelector('.next');
+
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlide - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlide + 1);
+    });
+});
