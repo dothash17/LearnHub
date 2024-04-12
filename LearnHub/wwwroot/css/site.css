@@ -6,10 +6,6 @@ html {
     html {
         font-size: 16px;
     }
-
-    .container {
-        margin-left: 0;
-    }
 }
 
 input:-webkit-autofill,
@@ -131,6 +127,8 @@ header {
 
 .container {
     margin-left: 250px;
+    padding: 0;
+    top: 0;
 }
 
 footer.footer {
@@ -163,7 +161,6 @@ input.nosubmit {
 }
 
 .navbar-brand {
-    padding: 8px;
     height: 100%;
     display: flex;
     background-color: transparent;
@@ -176,6 +173,7 @@ input.nosubmit {
 
     .search-container input {
         width: 300px;
+        border-radius: 25px;
     }
 
 .modal-body {
@@ -267,16 +265,15 @@ input.nosubmit {
     }
 
 .slider {
-    width: 80%;
     position: relative;
-    overflow: hidden;
+    width: 80%;
+    margin: auto;
 }
 
 .slide-container {
-    overflow-x: auto;
+    width: 100%;
     scroll-snap-type: x mandatory;
-    justify-content: center;
-    align-items: center;
+    
 }
 
 .slide {
@@ -284,8 +281,9 @@ input.nosubmit {
     flex-wrap: wrap;
     flex-grow: 0;
     gap: 20px;
-    margin: 0 auto;
     padding: 20px;
+    justify-content: center;
+    align-items: center;
     scroll-snap-align: start;
 }
 
@@ -294,6 +292,7 @@ input.nosubmit {
     border-radius: 5px;
     padding: 20px;
     min-width: calc(50% - 20px);
+    height: 250px;
     background-color: #fff;
     transition: transform 0.3s ease;
 }
@@ -308,7 +307,7 @@ input.nosubmit {
     text-align: center;
     margin-top: 20px;
     position: absolute;
-    bottom: 10px;
+    bottom: 0px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -346,7 +345,7 @@ input.nosubmit {
 
     .prev:hover,
     .next:hover {
-        background-color: #f1f1f1;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
 .prev {
@@ -356,3 +355,45 @@ input.nosubmit {
 .next {
     right: 0;
 }
+
+.banner {
+    width: 300px;
+    padding: 20px;
+    text-align: center;
+    border-radius: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: auto;
+}
+
+    .banner h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .banner p {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .banner button{
+        background-color: #258cfb;
+        color: white;
+        border-radius: 25px;
+    }
+
+.container-index {
+    display: grid;
+    width: calc(100vw - 250px);
+    grid-template-columns: 75% 25%;
+}
+
+.left-content {
+    justify-content: center;
+    align-items: center;
+}
+
+.right-content {
+    justify-content: center;
+    align-items: center;
+}
+
