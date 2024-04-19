@@ -4,9 +4,11 @@ public partial class Courses
 {
     public int CourseId { get; set; }
 
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
 
-    public string Description { get; set; }
+    public string Description { get; set; } = null!;
+
+    public int UserId { get; set; }
 
     public virtual ICollection<Enrollments> Enrollments { get; set; } = new List<Enrollments>();
 
@@ -16,5 +18,5 @@ public partial class Courses
 
     public virtual ICollection<Progress> Progress { get; set; } = new List<Progress>();
 
-    public virtual ICollection<UserCourse> UserCourse { get; set; } = new List<UserCourse>();
+    public virtual Users User { get; set; } = null!;
 }

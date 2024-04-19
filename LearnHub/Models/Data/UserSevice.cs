@@ -2,6 +2,8 @@
 using LearnHub.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 namespace LearnHub.Models.Data
 {
     public class UserService : IUserService
@@ -47,7 +49,7 @@ namespace LearnHub.Models.Data
 
         public async Task<Users> GetUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(m => m.Mail == email);
+            return await _context.Users.FirstOrDefaultAsync(m => m.Email == email);
         }
 
         public async Task UpdateUserAsync(Users user)
