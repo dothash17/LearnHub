@@ -1,0 +1,13 @@
+﻿@model List<LearnHub.Models.Lessons>
+
+@{
+	ViewData["Title"] = "Passage";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+	@foreach(var lesson in Model)
+	{
+		<p>@lesson.Title</p>
+	}
+</div>

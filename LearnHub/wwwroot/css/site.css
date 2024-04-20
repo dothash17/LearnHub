@@ -126,6 +126,7 @@ header {
 }
 
 .container {
+    margin: 0;
     margin-left: 250px;
     padding: 0;
     top: 0;
@@ -273,7 +274,7 @@ input.nosubmit {
 .slide-container {
     width: 100%;
     scroll-snap-type: x mandatory;
-    
+
 }
 
 .slide {
@@ -298,10 +299,17 @@ input.nosubmit {
 }
 
     .card:hover {
-        transform: translateY(-5px);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
     }
 
+    .card a{
+        text-decoration: none;
+        color: black
+    }
+
+    .card a:hover{
+        text-decoration: underline;
+    }
 
 .pagination {
     text-align: center;
@@ -363,6 +371,7 @@ input.nosubmit {
     border-radius: 25px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin: auto;
+    margin-top: 20px;
 }
 
     .banner h2 {
@@ -375,17 +384,41 @@ input.nosubmit {
         margin-bottom: 20px;
     }
 
-    .banner button{
-        background-color: #258cfb;
-        color: white;
+    .banner a {
+        display: block;
+        width: fit-content;
+        padding: 8px 10px;
+        border: none;
         border-radius: 25px;
+        background-color: #00AB00;
+        color: #fff;
+        text-align: center;
+        cursor: pointer;
+        margin: auto;
+        transition: background-color 0.3s;
+        text-decoration: none;
     }
+        .banner a:hover {
+            background-color: #009B00
+        }
 
 .container-index {
     display: grid;
     width: calc(100vw - 250px);
+    height: 100%;
     grid-template-columns: 75% 25%;
+    position: relative;
 }
+    .container-index::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 75%; 
+        width: 1px; 
+        background-color: #ccc; 
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
 .left-content {
     justify-content: center;
@@ -397,3 +430,119 @@ input.nosubmit {
     align-items: center;
 }
 
+.container-teach {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.heading-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.heading-teach {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.course-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-gap: 20px;
+}
+
+.course-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+.course-title {
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.course-description {
+    margin-bottom: 20px;
+}
+
+.create-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+    .create-btn:hover {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+.no-courses-msg {
+    font-size: 18px;
+    text-align: center;
+}
+
+    .no-courses-msg .btn {
+        margin-top: 10px;
+    }
+
+.profile-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.profile-details {
+    margin-top: 20px;
+}
+
+    .profile-details p {
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+.avatar-img {
+    max-width: 200px;
+    border-radius: 50%;
+}
+
+.card-profile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 0 solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+}
+
+.card-body-profile {
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding: 1rem;
+}
+
+.gutters-sm {
+    margin-top: 20px;
+    margin-left: 50px;
+}
+
+    .gutters-sm > .col, .gutters-sm > [class*=col-] {
+        padding-right: 8px;
+        padding-left: 8px;
+    }

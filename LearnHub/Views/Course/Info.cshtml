@@ -1,0 +1,21 @@
+﻿@model LearnHub.Models.Courses
+
+@{
+    ViewData["Title"] = "Курс " + Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.Title</h2>
+
+<h3>Уроки:</h3>
+<ul>
+    @foreach (var lesson in Model.Lessons)
+    {
+        <li>@lesson.Title</li>
+    }
+</ul>
+    
+<form method="post" action="@Url.Action("Info", "Course")">
+    <input type="hidden" name="courses.CourseId" value="@Model.CourseId" />
+    <button type="submit" class="btn btn-primary">Записаться на курс</button>
+</form>

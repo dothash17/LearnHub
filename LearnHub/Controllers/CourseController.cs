@@ -1,157 +1,99 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LearnHub.Models;
 using LearnHub.Models.Data;
+using LearnHub.Interfaces;
 
 namespace LearnHub.Controllers
 {
     public class CourseController : Controller
     {
         private readonly LearnHubContext _context;
+        private readonly IUserService _userService;
 
-        public CourseController(LearnHubContext context)
+        public CourseController(LearnHubContext context, IUserService userService)
         {
             _context = context;
+            _userService = userService;
         }
 
-        // GET: Course
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await _context.Courses.ToListAsync());
-        }
-
-        // GET: Course/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var courses = await _context.Courses
-                .FirstOrDefaultAsync(m => m.CourseId == id);
-            if (courses == null)
-            {
-                return NotFound();
-            }
-
+            var courses = _context.Courses
+                .Include(u => u.User)
+                .Include(g => g.Grades)
+                .Include(e => e.Enrollments)
+                .ToList();
             return View(courses);
         }
 
-        // GET: Course/Create
+        [HttpGet]
+        public async Task<IActionResult> Teaching()
+        {
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+            var courses = _context.Courses.Where(s => s.UserId == user.UserId).ToList();
+            return View(courses);
+        }
+
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Course/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseId,Title,Description")] Courses courses)
+        public async Task<IActionResult> Create(Courses courses)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(courses);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(courses);
-        }
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+            courses.UserId = user.UserId;
 
-        // GET: Course/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var courses = await _context.Courses.FindAsync(id);
-            if (courses == null)
-            {
-                return NotFound();
-            }
-            return View(courses);
-        }
-
-        // POST: Course/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CourseId,Title,Description")] Courses courses)
-        {
-            if (id != courses.CourseId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(courses);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CoursesExists(courses.CourseId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(courses);
-        }
-
-        // GET: Course/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var courses = await _context.Courses
-                .FirstOrDefaultAsync(m => m.CourseId == id);
-            if (courses == null)
-            {
-                return NotFound();
-            }
-
-            return View(courses);
-        }
-
-        // POST: Course/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var courses = await _context.Courses.FindAsync(id);
-            if (courses != null)
-            {
-                _context.Courses.Remove(courses);
-            }
-
+            _context.Add(courses);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Teaching));
         }
 
-        private bool CoursesExists(int id)
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
         {
-            return _context.Courses.Any(e => e.CourseId == id);
+            var course = await _context.Courses.FindAsync(id);
+            _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Teaching));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var course = await _context.Courses.Include(l => l.Lessons).FirstOrDefaultAsync(c => c.CourseId == id);
+            return View(course);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Info(int id)
+        {
+            var course = await _context.Courses
+                .Include(l => l.Lessons)
+                .Include(e => e.Enrollments)
+                .FirstOrDefaultAsync(c => c.CourseId == id);
+            return View(course);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Info(Courses courses)
+        {
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+            var enrollment = new Enrollments
+            {
+                UserId = user.UserId,
+                CourseId = courses.CourseId,
+                EnrollmentDate = DateTime.UtcNow,
+            };
+            _context.Enrollments.Add(enrollment);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Passage", "Lesson", new {id = courses.CourseId});
         }
     }
 }

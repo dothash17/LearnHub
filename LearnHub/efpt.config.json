@@ -52,10 +52,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[UserCourse]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[Users]",
          "ObjectType": 0
       }
@@ -77,7 +73,7 @@
    "UseNoNavigations": false,
    "UseNoObjectFilter": false,
    "UseNodaTime": false,
-   "UseNullableReferences": false,
+   "UseNullableReferences": true,
    "UsePrefixNavigationNaming": false,
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,

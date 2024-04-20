@@ -6,15 +6,19 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using LearnHub.Models;
 using LearnHub.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using LearnHub.Models.Data;
 
 namespace LearnHub.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly LearnHubContext _context;
         private readonly IUserService _userService;
 
-        public AccountController(IUserService userService)
+        public AccountController(LearnHubContext context, IUserService userService)
         {
+            _context = context;
             _userService = userService;
         }
 
@@ -23,12 +27,54 @@ namespace LearnHub.Controllers
         {
             var currentUser = HttpContext.Session.GetString("CurrentUser");
             var user = await _userService.GetUserByUsernameAsync(currentUser);
-
-            if (user == null)
-            {
-                return RedirectToAction("Index", "Home");
-            }
             return View(user);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> OtherProfile(int userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            return View(user);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Settings()
+        {
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+            return View(user);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Settings(Users user, IFormFile AvatarFile)
+        {
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var existingUser = await _userService.GetUserByUsernameAsync(currentUser);
+
+            existingUser.LastName = user.LastName;
+            existingUser.FirstName = user.FirstName;
+            if (AvatarFile != null && AvatarFile.Length > 0)
+            {
+                var uploadsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "avatars");
+                if (!Directory.Exists(uploadsDirectory))
+                {
+                    Directory.CreateDirectory(uploadsDirectory);
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(AvatarFile.FileName);
+                var filePath = Path.Combine(uploadsDirectory, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await AvatarFile.CopyToAsync(stream);
+                }
+
+                existingUser.Avatar = "/uploads/avatars/" + fileName; 
+            }
+            existingUser.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
+            await _userService.UpdateUserAsync(existingUser);
+            return RedirectToAction("Profile");
         }
 
         [HttpGet]
@@ -51,7 +97,7 @@ namespace LearnHub.Controllers
                 return BadRequest("Пользователь с таким именем уже существует.");
             }
 
-            existingUser = await _userService.GetUserByEmailAsync(model.Mail);
+            existingUser = await _userService.GetUserByEmailAsync(model.Email);
             if (existingUser != null)
             {
                 return BadRequest("Email уже используется другим пользователем.");
@@ -62,6 +108,7 @@ namespace LearnHub.Controllers
                 return BadRequest("Пароли не совпадают");
             }
 
+            model.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
             await _userService.CreateUserAsync(model);
 
             var claims = new List<Claim>
@@ -99,7 +146,7 @@ namespace LearnHub.Controllers
                 return BadRequest("Пользователя с таким именем не существует.");
             }
 
-            if (user.Password != model.Password)
+            if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
             {
                 return BadRequest("Пароль неверный.");
             }
