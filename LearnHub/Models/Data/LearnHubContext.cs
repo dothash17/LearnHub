@@ -45,9 +45,9 @@ public partial class LearnHubContext : DbContext
             entity.HasIndex(e => e.LessonId, "IX_Assignments_LessonID");
 
             entity.Property(e => e.AssignmentId).HasColumnName("AssignmentID");
-            entity.Property(e => e.Deadline).HasColumnType("datetime");
-            entity.Property(e => e.Description).HasColumnType("text");
+            entity.Property(e => e.Answer).HasMaxLength(300);
             entity.Property(e => e.LessonId).HasColumnName("LessonID");
+            entity.Property(e => e.Task).HasColumnType("text");
             entity.Property(e => e.Title).HasMaxLength(100);
 
             entity.HasOne(d => d.Lesson).WithMany(p => p.Assignments)
@@ -83,6 +83,10 @@ public partial class LearnHubContext : DbContext
 
             entity.Property(e => e.CourseId).HasColumnName("CourseID");
             entity.Property(e => e.Description).HasColumnType("text");
+            entity.Property(e => e.PublicationDate).HasColumnType("datetime");
+            entity.Property(e => e.Status)
+                .HasMaxLength(10)
+                .HasDefaultValue("Draft");
             entity.Property(e => e.Title).HasMaxLength(100);
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
@@ -211,19 +215,19 @@ public partial class LearnHubContext : DbContext
 
         modelBuilder.Entity<Progress>(entity =>
         {
-            entity.HasIndex(e => e.CourseId, "IX_Progress_CourseID");
+            entity.HasIndex(e => e.AssignmentId, "IX_Progress_CourseID");
 
             entity.HasIndex(e => e.UserId, "IX_Progress_UserID");
 
             entity.Property(e => e.ProgressId).HasColumnName("ProgressID");
-            entity.Property(e => e.CompletedMaterial).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.CourseId).HasColumnName("CourseID");
+            entity.Property(e => e.AssignmentId).HasColumnName("AssignmentID");
+            entity.Property(e => e.CompletedAssignment).HasColumnType("date");
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.Course).WithMany(p => p.Progress)
-                .HasForeignKey(d => d.CourseId)
+            entity.HasOne(d => d.Assignment).WithMany(p => p.Progress)
+                .HasForeignKey(d => d.AssignmentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Progress_Courses");
+                .HasConstraintName("FK_Progress_Assignments");
 
             entity.HasOne(d => d.User).WithMany(p => p.Progress)
                 .HasForeignKey(d => d.UserId)
@@ -244,6 +248,9 @@ public partial class LearnHubContext : DbContext
                 .HasMaxLength(60)
                 .IsUnicode(false);
             entity.Property(e => e.RegistrationDate).HasColumnType("date");
+            entity.Property(e => e.Role)
+                .HasMaxLength(10)
+                .HasDefaultValueSql("(user_name())");
             entity.Property(e => e.Username).HasMaxLength(30);
         });
 
