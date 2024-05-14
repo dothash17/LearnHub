@@ -24,19 +24,12 @@ namespace LearnHub.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            /*var currentUser = HttpContext.Session.GetString("CurrentUser");
-            var user = await _userService.GetUserByUsernameAsync(currentUser);
-
-            var lastEnrollment = _context.Enrollments
-                .Where(u => u.UserId == user.UserId)
-                .OrderByDescending(u => u.EnrollmentDate)
-                .FirstOrDefault();*/
-
-            var courses = _context.Courses
+            var courses = await _context.Courses
                 .Include(u => u.User)
                 .Include(g => g.Grades)
                 .Include(e => e.Enrollments)
-                .ToList();
+                .ToListAsync();
+
             return View(courses);
         }
 

@@ -14,23 +14,13 @@ public partial class LearnHubContext : DbContext
     }
 
     public virtual DbSet<Assignments> Assignments { get; set; }
-
     public virtual DbSet<Chats> Chats { get; set; }
-
     public virtual DbSet<Courses> Courses { get; set; }
-
     public virtual DbSet<Enrollments> Enrollments { get; set; }
-
     public virtual DbSet<Grades> Grades { get; set; }
-
     public virtual DbSet<Lessons> Lessons { get; set; }
-
-    public virtual DbSet<Materials> Materials { get; set; }
-
     public virtual DbSet<Messages> Messages { get; set; }
-
     public virtual DbSet<Progress> Progress { get; set; }
-
     public virtual DbSet<Users> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -45,14 +35,12 @@ public partial class LearnHubContext : DbContext
             entity.HasIndex(e => e.LessonId, "IX_Assignments_LessonID");
 
             entity.Property(e => e.AssignmentId).HasColumnName("AssignmentID");
-            entity.Property(e => e.Answer).HasMaxLength(300);
+            entity.Property(e => e.Answer).HasMaxLength(500);
             entity.Property(e => e.LessonId).HasColumnName("LessonID");
-            entity.Property(e => e.Task).HasColumnType("text");
-            entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.Task).HasMaxLength(300);
 
             entity.HasOne(d => d.Lesson).WithMany(p => p.Assignments)
                 .HasForeignKey(d => d.LessonId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Assignments_Lessons");
         });
 
@@ -68,13 +56,12 @@ public partial class LearnHubContext : DbContext
 
             entity.HasOne(d => d.FirstParticipantNavigation).WithMany(p => p.ChatsFirstParticipantNavigation)
                 .HasForeignKey(d => d.FirstParticipant)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Chats_Users");
+                .HasConstraintName("FK_Chats_Users1");
 
             entity.HasOne(d => d.SecondParticipantNavigation).WithMany(p => p.ChatsSecondParticipantNavigation)
                 .HasForeignKey(d => d.SecondParticipant)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Chats_Users2");
+                .HasConstraintName("FK_Chats_Users");
         });
 
         modelBuilder.Entity<Courses>(entity =>
@@ -92,7 +79,6 @@ public partial class LearnHubContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Courses_Users");
         });
 
@@ -111,7 +97,6 @@ public partial class LearnHubContext : DbContext
 
             entity.HasOne(d => d.Course).WithMany(p => p.Enrollments)
                 .HasForeignKey(d => d.CourseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Enrollments_Courses");
 
             entity.HasOne(d => d.User).WithMany(p => p.Enrollments)
@@ -141,7 +126,6 @@ public partial class LearnHubContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Grades)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Grades_Users");
         });
 
@@ -158,26 +142,7 @@ public partial class LearnHubContext : DbContext
 
             entity.HasOne(d => d.Course).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.CourseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Lessons_Courses");
-        });
-
-        modelBuilder.Entity<Materials>(entity =>
-        {
-            entity.HasKey(e => e.MaterialId);
-
-            entity.HasIndex(e => e.LessonId, "IX_Materials_LessonID");
-
-            entity.Property(e => e.MaterialId).HasColumnName("MaterialID");
-            entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.LessonId).HasColumnName("LessonID");
-            entity.Property(e => e.Link).HasMaxLength(255);
-            entity.Property(e => e.Title).HasMaxLength(50);
-
-            entity.HasOne(d => d.Lesson).WithMany(p => p.Materials)
-                .HasForeignKey(d => d.LessonId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Materials_Lessons");
         });
 
         modelBuilder.Entity<Messages>(entity =>
@@ -192,25 +157,24 @@ public partial class LearnHubContext : DbContext
 
             entity.Property(e => e.MessageId).HasColumnName("MessageID");
             entity.Property(e => e.ChatId).HasColumnName("ChatID");
-            entity.Property(e => e.MessageText).HasMaxLength(200);
+            entity.Property(e => e.MessageText).HasMaxLength(300);
             entity.Property(e => e.RecipientId).HasColumnName("RecipientID");
             entity.Property(e => e.SenderId).HasColumnName("SenderID");
             entity.Property(e => e.SentDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Chat).WithMany(p => p.Messages)
                 .HasForeignKey(d => d.ChatId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Messages_Chats");
 
             entity.HasOne(d => d.Recipient).WithMany(p => p.MessagesRecipient)
                 .HasForeignKey(d => d.RecipientId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Messages_Users3");
+                .HasConstraintName("FK_Messages_Users1");
 
             entity.HasOne(d => d.Sender).WithMany(p => p.MessagesSender)
                 .HasForeignKey(d => d.SenderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Messages_Users2");
+                .HasConstraintName("FK_Messages_Users");
         });
 
         modelBuilder.Entity<Progress>(entity =>
@@ -231,7 +195,6 @@ public partial class LearnHubContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Progress)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Progress_Users");
         });
 

@@ -28,6 +28,8 @@ namespace LearnHub.Models.Data
             try
             {
                 user.RegistrationDate = DateTime.UtcNow;
+                user.Avatar = "https://yt3.googleusercontent.com/ytc/AIf8zZS5-w-s2K8_JFeHXG9Tb0ehxfyYGSgR4y9kvWZSgQ=s900-c-k-c0x00ffffff-no-rj";
+                user.Role = "User";
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
             }
@@ -50,6 +52,21 @@ namespace LearnHub.Models.Data
         public async Task<Users> GetUserByEmailAsync(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(m => m.Email == email);
+        }
+
+        public async Task<Courses> GetLastStartedCourseAsync(int userId)
+        {
+            var lastEnrollment = await _context.Enrollments
+                .Where(e => e.UserId == userId)
+                .OrderByDescending(e => e.EnrollmentDate)
+                .FirstOrDefaultAsync();
+
+            if (lastEnrollment != null)
+            {
+                return await _context.Courses.FindAsync(lastEnrollment.CourseId);
+            }
+
+            return null;
         }
 
         public async Task UpdateUserAsync(Users user)

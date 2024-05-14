@@ -1,4 +1,11 @@
 ﻿@model List<LearnHub.Models.Courses>
+@using LearnHub.Interfaces
+@inject IUserService _userService
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var isUserAuthenticated = await _userService.IsUserAuthenticatedAsync();
+}
 
 @{
     ViewData["Title"] = "Обзор курсов";
@@ -14,10 +21,19 @@
                     <div class="slide">
                         @foreach (var course in courseGroup)
                         {
-                            <div class="card">
-                                <h2><a href="@Url.Action("Info", "Course", new { id = course.CourseId })">@course.Title</a></h2>
+                            <div class="catalog-card">
+                                <h5><a href="@Url.Action("Promo", "Course", new { id = course.CourseId })">@course.Title</a></h5>
                                 <p><a href="@Url.Action("OtherProfile", "Account", new {userId = course.UserId})">@course.User.Username</a></p>
-                                <p>@course.Description</p>
+                                @{
+                                    var courseGrades = course.Grades.Where(g => g.CourseId == course.CourseId).ToList();
+                                    var averageRating = courseGrades.Any() ? courseGrades.Average(g => g.Grade).ToString("0.0") : "0";
+                                    var courseEnrollments = course.Enrollments.Where(e => e.CourseId == course.CourseId).ToList();
+                                    var enrollmentCount = courseEnrollments.Count;
+                                }
+                                <div class="icons-row">
+                                    <p><i class="fas fa-star"></i> @averageRating</p>
+                                    <p><i class="fas fa-user"></i> @enrollmentCount</p>
+                                </div>
                             </div>
                         }
                     </div>
@@ -29,10 +45,40 @@
         </div>       
     </div>
     <div class="right-content">
-        <div class="banner">
-            <h2>Хотите начать преподавать?</h2>
-            <p>Присоединяйтесь к нашему сообществу преподавателей и делитесь своим знанием с миллионами студентов!</p>
-            <a asp-controller="Course" asp-action="Teaching">Начать преподавать</a>
-        </div>
+        @if (isUserAuthenticated)
+        {
+            var currentUser = HttpContextAccessor.HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+            var lastStartedCourse = await _userService.GetLastStartedCourseAsync(user.UserId);
+
+            if (lastStartedCourse != null)
+            {               
+                <div class="last-enroll">
+                    <h3>Последний начатый курс</h3>
+                    <div class="last-enroll-card">
+                        <h5><a href="@Url.Action("Promo", "Course", new { id = lastStartedCourse.CourseId })">@lastStartedCourse.Title</a></h5>
+                        <p><a href="@Url.Action("OtherProfile", "Account", new {userId = lastStartedCourse.UserId})">@lastStartedCourse.User.Username</a></p>
+                        @{
+                            var courseGrades = lastStartedCourse.Grades.Where(g => g.CourseId == lastStartedCourse.CourseId).ToList();
+                            var averageRating = courseGrades.Any() ? courseGrades.Average(g => g.Grade).ToString("0.0") : "0";
+                            var courseEnrollments = lastStartedCourse.Enrollments.Where(e => e.CourseId == lastStartedCourse.CourseId).ToList();
+                            var enrollmentCount = courseEnrollments.Count;
+                        }
+                        <div class="icons-row">
+                            <p><i class="fas fa-star"></i> @averageRating</p>
+                            <p><i class="fas fa-user"></i> @enrollmentCount</p>
+                            <a class="promo-btn" href="@Url.Action("Promo", "Course", new { id = lastStartedCourse.CourseId })">Продолжить</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else { }
+
+            @* <div class="banner">
+        <h2>Хотите начать преподавать?</h2>
+        <p>Присоединяйтесь к нашему сообществу преподавателей и делитесь своим знанием с миллионами студентов!</p>
+        <a asp-controller="Course" asp-action="Teaching">Начать преподавать</a>
+        </div> *@
+        }        
     </div>
 </div>

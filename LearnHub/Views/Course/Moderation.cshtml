@@ -1,0 +1,32 @@
+﻿@model List<LearnHub.Models.Courses>
+
+@{
+    ViewData["Title"] = "Курсы на модерации";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>Курсы на модерации</h2>
+    <div class="row">
+        @foreach (var course in Model)
+        {
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">@course.Title</h5>
+                        <p class="card-text">@course.Description</p>
+                        <a href="@Url.Action("Details", "Course", new { id = course.CourseId })" class="btn btn-primary">Подробнее</a>
+                        <form method="post" action="@Url.Action("PublishCourse", "Course")">
+                            <input type="hidden" name="courseId" value="@course.CourseId" />
+                            <button type="submit" class="btn btn-success">Опубликовать</button>
+                        </form>
+                        <form method="post" action="@Url.Action("SendToDraft", "Course")">
+                            <input type="hidden" name="courseId" value="@course.CourseId" />
+                            <button type="submit" class="btn btn-success">Отправить на доработку</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -4,22 +4,32 @@
     ViewData["Title"] = "Содержание курса";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h2>@Model.Title</h2>
-
-@if (Model.Lessons.Any())
-{
-    <h3>Уроки:</h3>
-    <ul>
-        @foreach (var lesson in Model.Lessons)
-        {
-            <li>@lesson.Title</li>
-        }
-    </ul>
-}
-else
-{
-    <p>В этом курсе пока нет уроков.</p>
-}
-
-<a class="create-btn" href="@Url.Action("Create", "Lesson", new { courseId = Model.CourseId })">+ Новый урок</a>
+<div class="teach-container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2>Курс "@Model.Title"</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <a class="btn btn-primary" href="@Url.Action("Create", "Lesson", new { courseId = Model.CourseId })">Новый урок</a>
+            <form method="post" action="@Url.Action("SendToModeration", "Course")">
+                <input type="hidden" name="courseId" value="@Model.CourseId" />
+                <button type="submit" class="btn btn-success">Опубликовать</button>
+            </form>
+        </div>
+        <ul class="course-list">
+            @foreach (var lesson in Model.Lessons)
+            {
+                <li class="course-item">
+                    <h3 class="course-title">@lesson.Title</h3>
+                    <div class="course-actions">
+                        <a href="@Url.Action("Details", "Lesson", new { id = lesson.LessonId })">Содержимое</a>
+                        <a href="@Url.Action("Edit", "Lesson", new { id = lesson.LessonId })">Редактировать</a>
+                        <form asp-controller="Lesson" asp-action="Delete" asp-route-id="@lesson.LessonId" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить @lesson.Title?');">
+                            <button type="submit" class="course-delete-btn">Удалить</button>
+                        </form>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>  
+</div>

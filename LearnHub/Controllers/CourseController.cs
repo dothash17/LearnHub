@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using LearnHub.Models;
 using LearnHub.Models.Data;
 using LearnHub.Interfaces;
+using System.Globalization;
 
 namespace LearnHub.Controllers
 {
@@ -36,6 +37,7 @@ namespace LearnHub.Controllers
             return View(courses);
         }
 
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -43,13 +45,13 @@ namespace LearnHub.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Courses courses)
+        public async Task<IActionResult> Create(Courses course)
         {
             var currentUser = HttpContext.Session.GetString("CurrentUser");
             var user = await _userService.GetUserByUsernameAsync(currentUser);
-            courses.UserId = user.UserId;
+            course.UserId = user.UserId;
 
-            _context.Add(courses);
+            _context.Add(course);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Teaching));
         }
@@ -71,17 +73,69 @@ namespace LearnHub.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Info(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var course = await _context.Courses
-                .Include(l => l.Lessons)
-                .Include(e => e.Enrollments)
-                .FirstOrDefaultAsync(c => c.CourseId == id);
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == id);           
             return View(course);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Info(Courses courses)
+        public async Task<IActionResult> Edit(Courses course)
+        {
+            _context.Courses.Update(course);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Teaching));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Promo(int id)
+        {          
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+
+            var course = await _context.Courses
+                .Include(u => u.User)
+                .Include(l => l.Lessons)
+                .Include(e => e.Enrollments)
+                .Include(g => g.Grades.OrderByDescending(s => s.Date))
+                    .ThenInclude(grade => grade.User)
+                .FirstOrDefaultAsync(c => c.CourseId == id);
+
+            var isEnrolled = course.Enrollments.Any(e => e.UserId == user.UserId);
+            ViewBag.IsEnrolled = isEnrolled;
+            ViewBag.User = user;
+
+            if (course.Grades.Any())
+            {
+                ViewBag.AverageGrade = Math.Round(course.Grades.Average(g => g.Grade), 1);
+                var countGrade = course.Grades.Count();
+                var lastDigit = countGrade % 10;
+
+                if (countGrade == 0)
+                {
+                    ViewBag.CountGrades = "отзывов";
+                }
+                else if (countGrade == 1)
+                {
+                    ViewBag.CountGrades = "отзыв";
+                }
+                else if (lastDigit >= 2 && lastDigit <= 4)
+                {
+                    ViewBag.CountGrades = "отзыва";
+                }
+                else
+                {
+                    ViewBag.CountGrades = "отзывов";
+                }
+
+                ViewBag.CountGrade = countGrade;
+            }
+
+            return View(course);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Promo(Courses courses)
         {
             var currentUser = HttpContext.Session.GetString("CurrentUser");
             var user = await _userService.GetUserByUsernameAsync(currentUser);
@@ -93,7 +147,63 @@ namespace LearnHub.Controllers
             };
             _context.Enrollments.Add(enrollment);
             await _context.SaveChangesAsync();
+
             return RedirectToAction("Passage", "Lesson", new {id = courses.CourseId});
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LeaveReview(int courseId, int grade, string comment)
+        {
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+
+            var newGrade = new Grades
+            {
+                UserId = user.UserId,
+                CourseId = courseId,
+                Grade = (byte)grade,
+                Comment = comment,
+                Date = DateTime.UtcNow
+            };
+
+            _context.Grades.Add(newGrade);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Promo", new { id = courseId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendToModeration(int courseId)
+        {
+            var course = await _context.Courses.FindAsync(courseId);
+            course.Status = "Moderation";
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Details", new { id = courseId });
+        }
+
+        [HttpGet]
+        public IActionResult Moderation()
+        {
+            var moderationCourses = _context.Courses.Where(c => c.Status == "Moderation").ToList();
+            return View(moderationCourses);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PublishCourse(int courseId)
+        {
+            var course = await _context.Courses.FindAsync(courseId);
+            course.Status = "Published";
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Moderation));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendToDraft(int courseId)
+        {
+            var course = await _context.Courses.FindAsync(courseId);
+            course.Status = "Draft";
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Moderation));
         }
     }
 }

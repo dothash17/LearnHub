@@ -33,8 +33,52 @@ namespace LearnHub.Controllers
         [HttpGet]
         public async Task<IActionResult> OtherProfile(int userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-            return View(user);
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+
+            if (user.UserId == userId)
+            {
+                return RedirectToAction("Profile");
+            }
+
+            var otherUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            return View(otherUser);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Message(int userId)
+        {
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+            var recipientUser = await _userService.GetUserByIdAsync(userId);
+
+            var userChats = await _context.Chats
+                .Include(c => c.Messages)
+                .Where(c => c.FirstParticipant == user.UserId || c.SecondParticipant == user.UserId)
+                .ToListAsync();
+
+            var chat = await _context.Chats
+                .Include(c => c.Messages)
+                .FirstOrDefaultAsync(c =>
+                    (c.FirstParticipant == user.UserId && c.SecondParticipant == recipientUser.UserId) ||
+                    (c.FirstParticipant == recipientUser.UserId && c.SecondParticipant == user.UserId));
+
+            if (chat == null)
+            {
+                chat = new Chats
+                {
+                    FirstParticipant = user.UserId,
+                    SecondParticipant = recipientUser.UserId,
+                };
+                _context.Chats.Add(chat);
+                await _context.SaveChangesAsync();
+            }
+
+            ViewBag.RecipientAvatar = recipientUser.Avatar;
+            ViewBag.RecipientUsername = recipientUser.Username;
+            ViewBag.LastMessage = chat.Messages.Any() ? chat.Messages.OrderByDescending(d => d.SentDate).First() : null;
+
+            return View(userChats);
         }
 
         [HttpGet]
@@ -53,6 +97,8 @@ namespace LearnHub.Controllers
 
             existingUser.LastName = user.LastName;
             existingUser.FirstName = user.FirstName;
+            existingUser.Email = user.Email;
+
             if (AvatarFile != null && AvatarFile.Length > 0)
             {
                 var uploadsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "avatars");
@@ -71,7 +117,6 @@ namespace LearnHub.Controllers
 
                 existingUser.Avatar = "/uploads/avatars/" + fileName; 
             }
-            existingUser.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
             await _userService.UpdateUserAsync(existingUser);
             return RedirectToAction("Profile");

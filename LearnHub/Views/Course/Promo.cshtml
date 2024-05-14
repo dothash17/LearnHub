@@ -1,0 +1,92 @@
+﻿@model LearnHub.Models.Courses
+
+@{
+    ViewData["Title"] = "Курс " + Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="promo-container">
+    <h2>@Model.Title</h2>
+    <p class="promo-description">@Html.Raw(Model.Description)</p>
+
+    <h3>Программа курса</h3>
+    <ol class="promo-lesson-list">
+        @foreach (var lesson in Model.Lessons)
+        {
+            <li class="promo-lesson-item">@lesson.Title</li>
+        }
+    </ol>
+
+    @if (ViewBag.IsEnrolled)
+    {
+        <a href="@Url.Action("Passage", "Lesson", new { id = Model.CourseId })" class="promo-btn">Продолжить обучение</a>
+    }
+    else
+    {
+        <form method="post" action="@Url.Action("Promo", "Course")">
+            <input type="hidden" name="courses.CourseId" value="@Model.CourseId" />
+            <button type="submit" class="promo-btn">Записаться на курс</button>
+        </form>
+    }   
+    <div class="grades-container">
+    <h3>Отзывы</h3>
+        @if (ViewBag.AverageGrade > 0)
+        {
+            <p><i class="star-icon fas fa-star"></i>@ViewBag.AverageGrade</p>
+        }
+    @if (ViewBag.IsEnrolled && Model.UserId != ViewBag.User.UserId)
+    {
+        <button id="showReviewButton" onclick="showReviewForm()" class="promo-btn">Оставить отзыв</button>
+        <div id="reviewForm" style="display: none;">
+            <form method="post" action="@Url.Action("LeaveReview", "Course")">
+                <input type="hidden" name="courseId" value="@Model.CourseId" />
+                <input name="grade" required />
+                <input name="comment" />
+                <button type="submit">Оставить отзыв</button>
+                <button type="button" onclick="hideReviewForm()">Отменить</button>
+            </form>
+        </div>
+    }
+    @if (Model.Grades.Any())
+    {
+        <p class="count-grades">@ViewBag.CountGrade @ViewBag.CountGrades</p>
+        <div class="review-container">
+            @foreach (var grade in Model.Grades)
+            {
+                <div class="review">
+                        @if (grade.User != null)
+                        {
+                            <div class="user-info">
+                                <a href="@Url.Action("OtherProfile", "Account", new { userId = grade.User.UserId })">                               
+                                    <img src="@grade.User.Avatar" alt="User Avatar">
+                                    <span class="username">@grade.User.Username</span>
+
+                                </a>
+                            </div>
+                        }
+                    <div class="stars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= grade.Grade)
+                                {
+                                    <i class="fas fa-star"></i> 
+                                }
+                                else
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                            }
+                    </div>
+                    <p class="comment">@grade.Comment</p>
+                    <p class="date">Дата: @grade.Date.ToShortDateString()</p>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>Пока нет отзывов.</p>
+    }
+</div>
+    
+</div>

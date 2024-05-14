@@ -7,22 +7,6 @@
 
 <form asp-action="Settings" method="post" enctype="multipart/form-data">
     <div class="form-group">
-        <label asp-for="FirstName">Имя</label>
-        <input asp-for="FirstName" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="LastName">Фамилия</label>
-        <input asp-for="LastName" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Email">Email</label>
-        <input asp-for="Email" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Password">Пароль</label>
-        <input asp-for="Password" class="form-control" />
-    </div>
-    <div class="form-group">
         <label asp-for="Avatar">Загрузить новую аватарку</label>
         <input type="file" name="AvatarFile" class="form-control-file" />
     </div>
@@ -33,5 +17,13 @@
             <img src="@Model.Avatar" alt="Current Avatar" class="avatar-img" />
         </div>
     }
+    <div class="form-group">
+        <label asp-for="FirstName">Имя</label>
+        <input asp-for="FirstName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="LastName">Фамилия</label>
+        <input asp-for="LastName" class="form-control" />
+    </div>   
     <button type="submit" class="btn btn-primary">Обновить настройки</button>
 </form>

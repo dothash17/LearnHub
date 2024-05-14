@@ -40,10 +40,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[Materials]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[Messages]",
          "ObjectType": 0
       },

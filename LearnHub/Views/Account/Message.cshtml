@@ -1,0 +1,49 @@
+﻿@model List<LearnHub.Models.Chats>
+
+@{
+    ViewData["Title"] = "Сообщения";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <section class="discussions">
+        <div class="discussion search">
+            <div class="searchbar">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input type="text" placeholder="Search..."></input>
+            </div>
+        </div>
+        @foreach (var chat in Model)
+        {
+            <div class="discussion message-active">
+                <div class="photo">
+                    <img src="@ViewBag.RecipientAvatar" width="45px" height="45px"/>
+                </div>
+                <div class="desc-contact">
+                    <p class="name">@ViewBag.RecipientUsername</p>
+                    <p class="message">@ViewBag.LastMessage</p>
+                </div>
+            </div>
+        }        
+    </section>
+    <section class="chat">
+        <div class="header-chat">
+            <i class="icon fa fa-user-o" aria-hidden="true"></i>
+            <p class="name"></p>
+            <i class="icon clickable fa fa-ellipsis-h right" aria-hidden="true"></i>
+        </div>
+        <div class="messages-chat">
+            <div class="message">
+                <div class="photo">
+                </div>
+                <p class="text"></p>
+            </div>            
+            <p class="time"></p>
+        </div>
+        <div class="footer-chat">
+            <i class="icon fa fa-smile-o clickable" style="font-size:25pt;" aria-hidden="true"></i>
+            <input type="text" class="write-message" placeholder="Type your message here"></input>
+            <i class="icon send fa fa-paper-plane-o clickable" aria-hidden="true"></i>
+        </div>
+    </section>
+</div>

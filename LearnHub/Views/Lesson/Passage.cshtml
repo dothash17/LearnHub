@@ -5,9 +5,20 @@
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div>
-	@foreach(var lesson in Model)
-	{
-		<p>@lesson.Title</p>
-	}
+<div class="lesson-container">
+    <div class="lesson-list">
+        <ul>
+            @foreach (var lesson in Model)
+            {
+                <li data-lesson-id="@lesson.LessonId">@lesson.Title</li>
+            }
+        </ul>
+    </div>
+    <div class="lesson-content">
+        <div id="lesson-text"></div>
+        <div class="lesson-navigation">
+            <button id="prev-lesson-btn">Предыдущий урок</button>
+            <button id="next-lesson-btn">Следующий урок</button>
+        </div>
+    </div>
 </div>

@@ -1,8 +1,12 @@
 ﻿@using LearnHub.Interfaces
 @inject IUserService _userService
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
     var isUserAuthenticated = await _userService.IsUserAuthenticatedAsync();
+    var currentUser = HttpContextAccessor.HttpContext.Session.GetString("CurrentUser");
+    var user = await _userService.GetUserByUsernameAsync(currentUser);
+    var isAdmin = user?.Role == "Admin";
 }
 
 @if (isUserAuthenticated)
@@ -12,6 +16,10 @@
             <li><a class="transparent-a mt-3" asp-controller="Account" asp-action="Profile"><i class="fas fa-user"></i> Профиль</a></li>
             <li><a class="transparent-a" asp-controller="Home" asp-action="Index"><i class="fas fa-book"></i> Курсы</a></li>
             <li><a class="transparent-a" asp-controller="Course" asp-action="Teaching"><i class="fas fa-graduation-cap"></i> Преподавание</a></li>
+            @if (isAdmin)
+            {
+                <li><a class="transparent-a" asp-controller="Course" asp-action="Moderation"><i class="fas fa-cogs"></i> Модерация</a></li>
+            }
         </ul>
         <ul class="bottom-list">
             <hr class="sidebar-divider">

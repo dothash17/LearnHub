@@ -235,6 +235,7 @@ kbd kbd {
 
 figure {
   margin: 0 0 1rem;
+  aspect-ratio: 16/9;
 }
 
 img,
