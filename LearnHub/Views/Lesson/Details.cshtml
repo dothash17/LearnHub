@@ -17,10 +17,11 @@
             @foreach (var assignments in Model.Assignments)
             {
                 <li class="course-item">
+                    <h3 class="course-title">@assignments.Task</h3>
                     <div class="course-actions">
                         <a href="@Url.Action("Details", "Assignment", new { id = assignments.AssignmentId })">Содержимое</a>
                         <a href="@Url.Action("Edit", "Assignment", new { id = assignments.AssignmentId })">Редактировать</a>
-                        <form asp-action="Delete" asp-route-id="@assignments.AssignmentId" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить @assignments.Task?');">
+                        <form asp-controller="Assignment" asp-action="Delete" asp-route-id="@assignments.AssignmentId" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить @assignments.Task?');">
                             <button type="submit" class="course-delete-btn">Удалить</button>
                         </form>
                     </div>

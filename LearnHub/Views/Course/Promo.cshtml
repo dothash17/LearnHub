@@ -16,18 +16,20 @@
             <li class="promo-lesson-item">@lesson.Title</li>
         }
     </ol>
-
-    @if (ViewBag.IsEnrolled)
+    @if (ViewBag.User != null)
     {
-        <a href="@Url.Action("Passage", "Lesson", new { id = Model.CourseId })" class="promo-btn">Продолжить обучение</a>
-    }
-    else
-    {
-        <form method="post" action="@Url.Action("Promo", "Course")">
-            <input type="hidden" name="courses.CourseId" value="@Model.CourseId" />
-            <button type="submit" class="promo-btn">Записаться на курс</button>
-        </form>
-    }   
+        @if (ViewBag.IsEnrolled)
+        {
+            <a href="@Url.Action("Passage", "Lesson", new { id = Model.CourseId })" class="promo-btn">Продолжить обучение</a>
+        }
+        else
+        {
+            <form method="post" action="@Url.Action("Promo", "Course")">
+                <input type="hidden" name="courses.CourseId" value="@Model.CourseId" />
+                <button type="submit" class="promo-btn">Записаться на курс</button>
+            </form>
+        }
+    }      
     <div class="grades-container">
     <h3>Отзывы</h3>
         @if (ViewBag.AverageGrade > 0)

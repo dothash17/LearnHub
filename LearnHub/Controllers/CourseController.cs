@@ -101,7 +101,7 @@ namespace LearnHub.Controllers
                     .ThenInclude(grade => grade.User)
                 .FirstOrDefaultAsync(c => c.CourseId == id);
 
-            var isEnrolled = course.Enrollments.Any(e => e.UserId == user.UserId);
+            var isEnrolled = course.Enrollments.Any(e => e.UserId == user?.UserId);
             ViewBag.IsEnrolled = isEnrolled;
             ViewBag.User = user;
 

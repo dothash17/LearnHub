@@ -112,17 +112,50 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
+    var lessonContent;
     function loadLessonContent(lessonId) {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/Lesson/GetLessonText?id=' + lessonId, true);
+        xhr.open('GET', '/Lesson/GetLessonContent?id=' + lessonId, true);
         xhr.onload = function () {
             if (xhr.status === 200) {
-                document.getElementById('lesson-text').innerHTML = xhr.responseText;
+                lessonContent = JSON.parse(xhr.responseText);
+                document.getElementById('lesson-text').innerHTML = lessonContent.text;
+                var assignmentsContainer = document.getElementById('lesson-assignments');
+                assignmentsContainer.innerHTML = '';
+                lessonContent.assignments.forEach(function (assignment, index) {
+                    var assignmentDiv = document.createElement('div');
+                    assignmentDiv.innerHTML = assignment.task;
+                    assignmentsContainer.appendChild(assignmentDiv);
+
+                    var input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = 'answer-input-' + index;
+                    input.placeholder = 'Введите ваш ответ';
+                    assignmentsContainer.appendChild(input);
+
+                    var button = document.createElement('button');
+                    button.textContent = 'Проверить ответ';
+                    button.onclick = function () {
+                        checkAnswer(index);
+                    };
+                    assignmentsContainer.appendChild(button);
+                });
             } else {
                 document.getElementById('lesson-text').innerHTML = 'Ошибка при загрузке содержимого урока.';
             }
         };
         xhr.send();
+    }
+
+    function checkAnswer(assignmentIndex) {
+        var userAnswer = document.getElementById('answer-input-' + assignmentIndex).value.trim().toLowerCase();
+        var correctAnswer = lessonContent.assignments[assignmentIndex].answer.toLowerCase();
+
+        if (userAnswer === correctAnswer || correctAnswer.includes(userAnswer)) {
+            alert('Правильный ответ!');
+        } else {
+            alert('Неправильный ответ. Попробуйте еще раз.');
+        }
     }
 
     var lessonItems = document.querySelectorAll('.lesson-list li');

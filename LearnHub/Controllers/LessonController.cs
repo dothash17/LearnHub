@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LearnHub.Models;
 using LearnHub.Models.Data;
+using Newtonsoft.Json;
 
 namespace LearnHub.Controllers
 {
@@ -31,19 +32,23 @@ namespace LearnHub.Controllers
         [HttpGet]
         public async Task<IActionResult> Passage(int id)
         {
-            var lessons = await _context.Lessons.Where(c => c.CourseId == id).ToListAsync();
+            var lessons = await _context.Lessons
+                .Where(c => c.CourseId == id)
+                .Include(l => l.Assignments)
+                .ToListAsync();
             return View(lessons);
         }
 
         [HttpGet]
-        public IActionResult GetLessonText(int id)
+        public IActionResult GetLessonContent(int id)
         {
-            var lesson = _context.Lessons.FirstOrDefault(l => l.LessonId == id);
-            if (lesson != null)
+            var lesson = _context.Lessons.Include(l => l.Assignments).FirstOrDefault(l => l.LessonId == id);
+            var lessonContent = new
             {
-                return Content(lesson.Text);
-            }
-            return NotFound();
+                text = lesson.Text,
+                assignments = lesson.Assignments.Select(a => new { task = a.Task, answer = a.Answer }).ToList()
+            };
+            return Ok(lessonContent);
         }
 
         [HttpGet]
