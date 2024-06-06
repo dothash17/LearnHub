@@ -3,7 +3,6 @@ using LearnHub.Models;
 using LearnHub.Models.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Versioning;
 using System.Diagnostics;
 
 namespace LearnHub.Controllers
@@ -24,11 +23,12 @@ namespace LearnHub.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var courses = await _context.Courses
+            var courses = _context.Courses
+                .Where(c => c.Status == "Published")
                 .Include(u => u.User)
                 .Include(g => g.Grades)
                 .Include(e => e.Enrollments)
-                .ToListAsync();
+                .ToList();
 
             return View(courses);
         }

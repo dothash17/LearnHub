@@ -1,6 +1,8 @@
 ﻿function showLogin() {
     document.getElementById("loginForm").style.display = "block";
     document.getElementById("registerForm").style.display = "none";
+    document.getElementById("forgotPasswordForm").style.display = "none";
+    document.getElementById("authButtons").style.display = "flex";
     document.querySelector('#loginModal .full-width-btn.active').classList.remove('active');
     document.querySelector('#loginModal .full-width-btn:nth-child(1)').classList.add('active');
 }
@@ -8,8 +10,17 @@
 function showRegister() {
     document.getElementById("loginForm").style.display = "none";
     document.getElementById("registerForm").style.display = "block";
+    document.getElementById("forgotPasswordForm").style.display = "none";
+    document.getElementById("authButtons").style.display = "flex";
     document.querySelector('#loginModal .full-width-btn.active').classList.remove('active');
     document.querySelector('#loginModal .full-width-btn:nth-child(2)').classList.add('active');
+}
+
+function showForgotPassword() {
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("registerForm").style.display = "none";
+    document.getElementById("forgotPasswordForm").style.display = "block";
+    document.getElementById("authButtons").style.display = "none";
 }
 
 function validateLoginForm() {
@@ -66,6 +77,28 @@ function validateRegisterForm() {
 document.addEventListener("DOMContentLoaded", function () {
     const slides = document.querySelectorAll('.slide');
     const pagination = document.querySelector('.pagination');
+    const sortButtons = document.querySelectorAll('.sort-button');
+    const sortButtonsList = document.querySelectorAll('.sort-buttons-list .sort-button');
+
+    sortButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            sortButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            const sortType = button.id.replace('sort-', '');
+            sortSlides(`data-${sortType}`);
+        });
+    });
+
+    sortButtonsList.forEach(button => {
+        button.addEventListener('click', () => {
+            sortButtonsList.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            const sortType = button.id.replace('sort-', '').replace('-list', '');
+            sortCoursesList(`data-${sortType}`);
+        });
+    });
 
     slides.forEach((slide, index) => {
         const dot = document.createElement('span');
@@ -109,10 +142,136 @@ document.addEventListener("DOMContentLoaded", function () {
     nextBtn.addEventListener('click', () => {
         goToSlide(currentSlide + 1);
     });
+
+    document.getElementById('sort-enrollments').addEventListener('click', () => {
+        sortSlides('data-enrollments');
+    });
+
+    document.getElementById('sort-rating').addEventListener('click', () => {
+        sortSlides('data-rating');
+    });
+
+    document.getElementById('sort-date').addEventListener('click', () => {
+        sortSlides('data-date');
+    });
+
+    document.getElementById('sort-enrollments-list').addEventListener('click', () => {
+        sortCoursesList('data-enrollments');
+    });
+
+    document.getElementById('sort-rating-list').addEventListener('click', () => {
+        sortCoursesList('data-rating');
+    });
+
+    document.getElementById('sort-date-list').addEventListener('click', () => {
+        sortCoursesList('data-date');
+    });
+
+    function sortSlides(dataAttribute) {
+        const slideContainer = document.getElementById('slide-container');
+        const slides = Array.from(slideContainer.querySelectorAll('.slide'));
+
+        const tempContainer = document.createElement('div');
+        let courses = Array.from(slideContainer.querySelectorAll('.catalog-card'));
+
+        courses.sort((a, b) => {
+            const aValue = a.getAttribute(dataAttribute);
+            const bValue = b.getAttribute(dataAttribute);
+
+            if (dataAttribute === 'data-rating' || dataAttribute === 'data-enrollments') {
+                const aNumericValue = parseFloat(aValue) || 0;
+                const bNumericValue = parseFloat(bValue) || 0;
+                return bNumericValue - aNumericValue;
+            } else {
+                const aDate = new Date(aValue);
+                const bDate = new Date(bValue);
+                return bDate - aDate;
+            }
+        });
+
+        courses.forEach(course => {
+            tempContainer.appendChild(course);
+        });
+
+        slideContainer.innerHTML = '';
+
+        const slideSize = 4;
+        slides.slice(0, 3).forEach(slide => {
+            const slideCourses = Array.from(tempContainer.querySelectorAll('.catalog-card'));
+            slideCourses.splice(slideSize).forEach(course => {
+                tempContainer.appendChild(course);
+            });
+            slideCourses.forEach(course => {
+                slide.appendChild(course);
+            });
+            slideContainer.appendChild(slide);
+        });
+
+        currentSlide = 0;
+        updateSlider();
+        updatePagination();
+    }
+
+    function sortCoursesList(dataAttribute) {
+        const courseList = document.getElementById('course-list');
+        const courses = Array.from(courseList.querySelectorAll('.courses-item'));
+
+        courses.sort((a, b) => {
+            const aValue = a.getAttribute(dataAttribute);
+            const bValue = b.getAttribute(dataAttribute);
+
+            if (dataAttribute === 'data-rating' || dataAttribute === 'data-enrollments') {
+                const aNumericValue = parseFloat(aValue) || 0;
+                const bNumericValue = parseFloat(bValue) || 0;
+                return bNumericValue - aNumericValue;
+            } else {
+                const aDate = new Date(aValue);
+                const bDate = new Date(bValue);
+                return bDate - aDate;
+            }
+        });
+
+        courseList.innerHTML = '';
+        courses.forEach(course => {
+            courseList.appendChild(course);
+        });
+    }
+
+    function updatePagination() {
+        pagination.innerHTML = '';
+        const newSlides = document.querySelectorAll('.slide');
+
+        newSlides.forEach((slide, index) => {
+            const dot = document.createElement('span');
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+            });
+            pagination.appendChild(dot);
+        });
+        updateSlider();
+    }
+
+    sortSlides('data-enrollments');
+    sortCoursesList('data-enrollments');
+});
+
+document.getElementById('search-input').addEventListener('input', function () {
+    var filter = this.value.toLowerCase();
+    var courseItems = document.querySelectorAll('.courses-item');
+    courseItems.forEach(function (item) {
+        var title = item.getAttribute('data-title');
+        var author = item.getAttribute('data-author');
+        if (title.includes(filter) || author.includes(filter)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
 });
 
 document.addEventListener("DOMContentLoaded", function () {
     var lessonContent;
+
     function loadLessonContent(lessonId) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/Lesson/GetLessonContent?id=' + lessonId, true);
@@ -131,14 +290,22 @@ document.addEventListener("DOMContentLoaded", function () {
                     input.type = 'text';
                     input.id = 'answer-input-' + index;
                     input.placeholder = 'Введите ваш ответ';
+                    input.className = 'input-field';
                     assignmentsContainer.appendChild(input);
 
                     var button = document.createElement('button');
                     button.textContent = 'Проверить ответ';
+                    button.className = 'check-button';
                     button.onclick = function () {
-                        checkAnswer(index);
+                        checkAnswer(index, assignment.id);
                     };
                     assignmentsContainer.appendChild(button);
+                    if (assignment.solved) {
+                        input.value = assignment.answer;
+                        input.disabled = true;
+                        button.disabled = true;
+                        button.className += ' disabled';
+                    }
                 });
             } else {
                 document.getElementById('lesson-text').innerHTML = 'Ошибка при загрузке содержимого урока.';
@@ -147,15 +314,39 @@ document.addEventListener("DOMContentLoaded", function () {
         xhr.send();
     }
 
-    function checkAnswer(assignmentIndex) {
+    function showNotification(message, isError) {
+        var notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = 'notification' + (isError ? ' error' : '');
+        notification.style.display = 'block';
+        setTimeout(function () {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    function checkAnswer(assignmentIndex, assignmentId) {
         var userAnswer = document.getElementById('answer-input-' + assignmentIndex).value.trim().toLowerCase();
         var correctAnswer = lessonContent.assignments[assignmentIndex].answer.toLowerCase();
 
         if (userAnswer === correctAnswer || correctAnswer.includes(userAnswer)) {
-            alert('Правильный ответ!');
+            showNotification('Правильный ответ!', false);
+            recordProgress(assignmentId);
         } else {
-            alert('Неправильный ответ. Попробуйте еще раз.');
+            showNotification('Неправильный ответ. Попробуйте еще раз.', true);
         }
+    }
+
+    function recordProgress(assignmentId) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/Lesson/RecordProgress?assignmentId=' + assignmentId, true); 
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log('Прогресс успешно записан');
+            } else {
+                console.error('Ошибка при записи прогресса');
+            }
+        };
+        xhr.send();
     }
 
     var lessonItems = document.querySelectorAll('.lesson-list li');
@@ -307,3 +498,44 @@ function hideReviewForm() {
     document.getElementById("reviewForm").style.display = "none";
     document.getElementById("showReviewButton").style.display = "block";
 }
+
+document.querySelectorAll('.rating-stars input').forEach((star) => {
+    star.addEventListener('change', function () {
+        let stars = document.querySelectorAll('.rating-stars .star');
+        let checkedValue = this.value;
+        stars.forEach((label, index) => {
+            if (index < checkedValue) {
+                label.classList.add('checked');
+            } else {
+                label.classList.remove('checked');
+            }
+        });
+    });
+});
+
+function scrollToBottom() {
+    var chatMessages = document.getElementById("chatMessages");
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+
+window.onload = function () {
+    scrollToBottom();
+};
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    var messageInput = document.getElementById("messageText");
+
+    messageInput.addEventListener('input', function () {
+        while (messageInput.value.startsWith(" ") || messageInput.value.startsWith("\n")) {
+            messageInput.value = messageInput.value.substring(1);
+        }
+    });
+
+    messageInput.addEventListener('keypress', function (e) {
+        if (messageInput.value.length === 0 && e.key === " ") {
+            e.preventDefault();
+        }
+    });
+});

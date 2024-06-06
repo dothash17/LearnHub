@@ -129,6 +129,9 @@ namespace LearnHub.Controllers
                 }
 
                 ViewBag.CountGrade = countGrade;
+
+                var userReview = course.Grades.FirstOrDefault(g => g.UserId == user.UserId);
+                ViewBag.UserReview = userReview;
             }
 
             return View(course);
@@ -139,12 +142,14 @@ namespace LearnHub.Controllers
         {
             var currentUser = HttpContext.Session.GetString("CurrentUser");
             var user = await _userService.GetUserByUsernameAsync(currentUser);
+
             var enrollment = new Enrollments
             {
                 UserId = user.UserId,
                 CourseId = courses.CourseId,
                 EnrollmentDate = DateTime.UtcNow,
             };
+
             _context.Enrollments.Add(enrollment);
             await _context.SaveChangesAsync();
 
@@ -152,24 +157,51 @@ namespace LearnHub.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> LeaveReview(int courseId, int grade, string comment)
+        public async Task<IActionResult> LeaveReview(int courseId, int grade, string comment, int? reviewId)
         {
             var currentUser = HttpContext.Session.GetString("CurrentUser");
             var user = await _userService.GetUserByUsernameAsync(currentUser);
 
-            var newGrade = new Grades
-            {
-                UserId = user.UserId,
-                CourseId = courseId,
-                Grade = (byte)grade,
-                Comment = comment,
-                Date = DateTime.UtcNow
-            };
+            Grades review;
 
-            _context.Grades.Add(newGrade);
+            if (reviewId.HasValue)
+            {
+                review = await _context.Grades.FirstOrDefaultAsync(g => g.GradeId == reviewId.Value);
+
+                if (review != null)
+                {
+                    review.Grade = (byte)grade;
+                    review.Comment = comment;
+                    review.Date = DateTime.UtcNow;
+                }
+            }
+            else
+            {
+                review = new Grades
+                {
+                    CourseId = courseId,
+                    UserId = user.UserId,
+                    Grade = (byte)grade,
+                    Comment = comment,
+                    Date = DateTime.UtcNow
+                };
+                _context.Grades.Add(review);
+            }
+
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Promo", new { id = courseId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteReview(int reviewId)
+        {
+            var review = await _context.Grades.FirstOrDefaultAsync(g => g.GradeId == reviewId);
+
+            _context.Grades.Remove(review);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Promo", new { id = review.CourseId });
         }
 
         [HttpPost]
@@ -193,6 +225,7 @@ namespace LearnHub.Controllers
         {
             var course = await _context.Courses.FindAsync(courseId);
             course.Status = "Published";
+            course.PublicationDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Moderation));
         }

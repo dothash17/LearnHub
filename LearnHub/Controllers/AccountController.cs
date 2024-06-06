@@ -27,8 +27,25 @@ namespace LearnHub.Controllers
         {
             var currentUser = HttpContext.Session.GetString("CurrentUser");
             var user = await _userService.GetUserByUsernameAsync(currentUser);
+
+            var solvedTasksCount = await _context.Progress.CountAsync(p => p.UserId == user.UserId);
+            var completedCoursesCount = await _context.Courses
+                .Where(c => c.Lessons.Any(l => l.Assignments.Any()) &&
+                    c.Lessons.All(l => l.Assignments.All(a => a.Progress.Any(p => p.UserId == user.UserId))))
+                .CountAsync();
+
+            var activityData = await _context.Progress
+                .Where(p => p.UserId == user.UserId)
+                .GroupBy(p => p.CompletedAssignment.Date)
+                .Select(g => new { Date = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Date.ToString("yyyy-MM-dd"), g => g.Count);
+
+            ViewBag.SolvedTasksCount = solvedTasksCount;
+            ViewBag.CompletedCoursesCount = completedCoursesCount;
+            ViewBag.ActivityData = activityData;
+
             return View(user);
-        }
+        }       
 
         [HttpGet]
         public async Task<IActionResult> OtherProfile(int userId)
@@ -46,17 +63,29 @@ namespace LearnHub.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Message(int userId)
+        public async Task<IActionResult> Message(int? userId = null)
         {
             var currentUser = HttpContext.Session.GetString("CurrentUser");
             var user = await _userService.GetUserByUsernameAsync(currentUser);
-            var recipientUser = await _userService.GetUserByIdAsync(userId);
 
             var userChats = await _context.Chats
                 .Include(c => c.Messages)
+                .Include(c => c.FirstParticipantNavigation)
+                .Include(c => c.SecondParticipantNavigation)
                 .Where(c => c.FirstParticipant == user.UserId || c.SecondParticipant == user.UserId)
                 .ToListAsync();
 
+            userChats = userChats.OrderByDescending(c => c.Messages.Any() ? c.Messages.Max(m => m.SentDate) : DateTime.MinValue).ToList();
+
+            ViewBag.CurrentUserId = user.UserId;
+            ViewBag.UserChats = userChats;
+
+            if (userId == null)
+            {
+                return View();
+            }
+
+            var recipientUser = await _userService.GetUserByIdAsync(userId.Value);
             var chat = await _context.Chats
                 .Include(c => c.Messages)
                 .FirstOrDefaultAsync(c =>
@@ -78,7 +107,29 @@ namespace LearnHub.Controllers
             ViewBag.RecipientUsername = recipientUser.Username;
             ViewBag.LastMessage = chat.Messages.Any() ? chat.Messages.OrderByDescending(d => d.SentDate).First() : null;
 
-            return View(userChats);
+            return View(chat);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendMessage(int chatId, string messageText)
+        {
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+            var chat = await _context.Chats.Include(c => c.Messages).FirstOrDefaultAsync(c => c.ChatId == chatId);
+
+            var message = new Messages
+            {
+                ChatId = chatId,
+                MessageText = messageText.Trim(),
+                SentDate = DateTime.Now,
+                SenderId = user.UserId,
+                RecipientId = chat.FirstParticipant == user.UserId ? chat.SecondParticipant : chat.FirstParticipant
+            };
+
+            _context.Messages.Add(message);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Message", new { userId = message.RecipientId });
         }
 
         [HttpGet]

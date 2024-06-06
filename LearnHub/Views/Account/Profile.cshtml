@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Профиль";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var activityDataJson = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ActivityData);
 }
 
 <div class="row gutters-sm">
@@ -16,7 +17,25 @@
                     </div>
                 </div>
             </div>
-        </div>       
+        </div>   
+        <div class="card-profile mt-3">
+            <div class="card-body-profile">
+                <div class="row">
+                    <div class="col-6 text-center">
+                        <div class="statistic">
+                            <p class="statistic-title">Решено задач</p>
+                            <p class="statistic-value">@ViewBag.SolvedTasksCount</p>
+                        </div>
+                    </div>
+                    <div class="col-6 text-center">
+                        <div class="statistic">
+                            <p class="statistic-title">Пройдено курсов</p>
+                            <p class="statistic-value">@ViewBag.CompletedCoursesCount</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-md-8">
         <div class="card-profile mb-3">
@@ -40,5 +59,61 @@
                 </div>
             </div>
         </div>
+        <div class="card-profile mb-3">
+            <div class="card-body-profile">
+                <h6>Календарь активности</h6>
+                <div id="cal-heatmap"></div>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        var activityData = @Html.Raw(activityDataJson);
+        const cal = new CalHeatmap();
+        cal.paint({
+            itemSelector: "#cal-heatmap",
+            data: {
+                source: activityData,
+                type: "json",
+                x: "date",
+                y: "count"
+            },
+            date: {
+                start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            },
+            range: 12,  // Display 12 months
+            cellSize: 12,
+            domain: {
+                type: "month",
+                label: {
+                    position: "top",
+                    format: (date) => date.toLocaleDateString('ru-RU', { month: 'long' })
+                }
+            },
+            subDomain: {
+                type: "day",
+                label: (date) => date.toLocaleDateString('ru-RU', { weekday: 'short' }),
+                weekStartOnMonday: true,
+                color: {
+                    scale: ["#ededed", "#1a9850"],
+                    type: "value",
+                    domain: [0, 10]
+                }
+            },
+            legend: [0, 1, 2, 3, 4, 5],  // Legend for color scale
+            tooltip: {
+                enabled: true,
+                formatter: {
+                    date: (date) => date.toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    }),
+                    count: (count) => count + ' ' + (count === 1 ? 'решенная задача' : 'решенных задач')
+                }
+            },
+        });
+    </script>
+}

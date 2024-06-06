@@ -4,16 +4,20 @@ using Microsoft.EntityFrameworkCore;
 using LearnHub.Models;
 using LearnHub.Models.Data;
 using Newtonsoft.Json;
+using LearnHub.Interfaces;
+using System.Net.WebSockets;
 
 namespace LearnHub.Controllers
 {
     public class LessonController : Controller
     {
         private readonly LearnHubContext _context;
+        private readonly IUserService _userService;
 
-        public LessonController(LearnHubContext context)
+        public LessonController(LearnHubContext context, IUserService userService)
         {
             _context = context;
+            _userService = userService;
         }
 
         public async Task<IActionResult> Index()
@@ -40,15 +44,48 @@ namespace LearnHub.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetLessonContent(int id)
+        public async Task<IActionResult> GetLessonContent(int id)
         {
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+
             var lesson = _context.Lessons.Include(l => l.Assignments).FirstOrDefault(l => l.LessonId == id);
+            var userProgress = _context.Progress
+                .Where(p => p.UserId == user.UserId && lesson.Assignments.Select(a => a.AssignmentId).Contains(p.AssignmentId))
+                .Select(p => p.AssignmentId)
+                .ToList();
+
             var lessonContent = new
             {
                 text = lesson.Text,
-                assignments = lesson.Assignments.Select(a => new { task = a.Task, answer = a.Answer }).ToList()
+                assignments = lesson.Assignments.Select(a => new 
+                { 
+                    id = a.AssignmentId, 
+                    task = a.Task, 
+                    answer = a.Answer,
+                    solved = userProgress.Contains(a.AssignmentId)
+                }).ToList()
             };
             return Ok(lessonContent);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RecordProgress(int assignmentId)
+        {
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var user = await _userService.GetUserByUsernameAsync(currentUser);
+
+            var progress = new Progress
+            {
+                CompletedAssignment = DateTime.UtcNow,
+                AssignmentId = assignmentId,
+                UserId = user.UserId
+            };
+
+            _context.Add(progress);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
         [HttpGet]

@@ -10,10 +10,10 @@
         <div class="card-profile">
             <div class="card-body-profile">
                 <div class="d-flex flex-column align-items-center text-center">
-                    <img src="@Model.Avatar" alt="Avatar" class="avatar-img" width="150">
+                    <img src="@Model.Avatar" alt="Avatar" class="avatar-img">
                     <div class="mt-3">
                         <h4>@Model.Username</h4>
-                        <p><a href="@Url.Action("Message", "Account", new { userId = Model.UserId })">Сообщения</a></p>
+                        <p><a href="@Url.Action("Message", "Account", new { userId = Model.UserId })">Написать сообщение</a></p>
                     </div>
                 </div>
             </div>

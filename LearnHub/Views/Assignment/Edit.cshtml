@@ -1,42 +1,30 @@
 ﻿@model LearnHub.Models.Assignments
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Изменение задания";
 }
 
-<h1>Edit</h1>
-
-<h4>Assignments</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="row justify-content-center mt-5">
+    <div class="col-md-9">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="AssignmentId" />
-            <div class="form-group">
-                <label asp-for="Task" class="control-label"></label>
+            <input type="hidden" asp-for="LessonId" />
+            <div class="form-group mb-3">
+                <label class="control-label">Задание</label>
                 <input asp-for="Task" class="form-control" />
                 <span asp-validation-for="Task" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Answer" class="control-label"></label>
+            <div class="form-group mb-3">
+                <label class="control-label">Ответ</label>
                 <input asp-for="Answer" class="form-control" />
                 <span asp-validation-for="Answer" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="LessonId" class="control-label"></label>
-                <select asp-for="LessonId" class="form-control" asp-items="ViewBag.LessonId"></select>
-                <span asp-validation-for="LessonId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

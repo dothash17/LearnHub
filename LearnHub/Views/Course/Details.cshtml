@@ -6,15 +6,25 @@
 }
 <div class="teach-container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-9">
             <h2>Курс "@Model.Title"</h2>
         </div>
-        <div class="col-md-6 text-end">
-            <a class="btn btn-primary" href="@Url.Action("Create", "Lesson", new { courseId = Model.CourseId })">Новый урок</a>
-            <form method="post" action="@Url.Action("SendToModeration", "Course")">
-                <input type="hidden" name="courseId" value="@Model.CourseId" />
-                <button type="submit" class="btn btn-success">Опубликовать</button>
-            </form>
+        <div class="col-md-3 text-end">
+            <a class="btn btn-primary mb-2" href="@Url.Action("Create", "Lesson", new { courseId = Model.CourseId })">Новый урок</a>
+            @if (Model.Status == "Draft")
+            {
+                <form method="post" action="@Url.Action("SendToModeration", "Course")">
+                    <input type="hidden" name="courseId" value="@Model.CourseId" />
+                    <button type="submit" class="btn btn-success">Опубликовать</button>
+                </form>
+            }
+            @if (Model.Status == "Moderation")
+            {
+                <form method="post" action="@Url.Action("SendToDraft", "Course")">
+                    <input type="hidden" name="courseId" value="@Model.CourseId" />
+                    <button type="submit" class="btn btn-success">Вернуть на доработку</button>
+                </form>
+            }           
         </div>
         <ul class="course-list">
             @foreach (var lesson in Model.Lessons)

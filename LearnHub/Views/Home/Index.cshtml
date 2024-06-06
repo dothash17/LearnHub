@@ -14,22 +14,25 @@
 
 <div class="container-index">
     <div class="left-content">
-        <div class="slider">
-            <div class="slide-container">
+        <div class="sort-buttons">
+            <button id="sort-enrollments" class="sort-button active">Популярное</button>
+            <button id="sort-date" class="sort-button">Новое</button>
+            <button id="sort-rating" class="sort-button">Лучшее</button>
+        </div>
+        <div class="slider">          
+            <div class="slide-container" id="slide-container">
                 @foreach (var courseGroup in Model.Chunk(4))
                 {
                     <div class="slide">
                         @foreach (var course in courseGroup)
                         {
-                            <div class="catalog-card">
+                            var courseGrades = course.Grades.Where(g => g.CourseId == course.CourseId).ToList();
+                            var averageRating = courseGrades.Any() ? courseGrades.Average(g => g.Grade).ToString("0.0") : "0";
+                            var courseEnrollments = course.Enrollments.Where(e => e.CourseId == course.CourseId).ToList();
+                            var enrollmentCount = courseEnrollments.Count;
+                            <div class="catalog-card" data-date="@course.PublicationDate" data-enrollments="@enrollmentCount" data-rating="@averageRating">
                                 <h5><a href="@Url.Action("Promo", "Course", new { id = course.CourseId })">@course.Title</a></h5>
                                 <p><a href="@Url.Action("OtherProfile", "Account", new {userId = course.UserId})">@course.User.Username</a></p>
-                                @{
-                                    var courseGrades = course.Grades.Where(g => g.CourseId == course.CourseId).ToList();
-                                    var averageRating = courseGrades.Any() ? courseGrades.Average(g => g.Grade).ToString("0.0") : "0";
-                                    var courseEnrollments = course.Enrollments.Where(e => e.CourseId == course.CourseId).ToList();
-                                    var enrollmentCount = courseEnrollments.Count;
-                                }
                                 <div class="icons-row">
                                     <p><i class="fas fa-star"></i> @averageRating</p>
                                     <p><i class="fas fa-user"></i> @enrollmentCount</p>
@@ -37,12 +40,37 @@
                             </div>
                         }
                     </div>
-                }               
+                }
             </div>
             <div class="pagination"></div>
             <button class="prev">❮</button>
             <button class="next">❯</button>
-        </div>       
+        </div>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Поиск по названию курса или автору..." />
+        </div>
+        <div class="sort-buttons-list">
+            <button id="sort-enrollments-list" class="sort-button active">Популярное</button>
+            <button id="sort-date-list" class="sort-button">Новое</button>
+            <button id="sort-rating-list" class="sort-button">Лучшее</button>
+        </div>
+        <div class="courses-list" id="course-list">
+            @foreach (var course in Model)
+            {
+                var courseGrades = course.Grades.Where(g => g.CourseId == course.CourseId).ToList();
+                var averageRating = courseGrades.Any() ? courseGrades.Average(g => g.Grade).ToString("0.0") : "0";
+                var courseEnrollments = course.Enrollments.Where(e => e.CourseId == course.CourseId).ToList();
+                var enrollmentCount = courseEnrollments.Count;
+                <div class="courses-item" data-title="@course.Title.ToLower()" data-author="@course.User.Username.ToLower()" data-date="@course.PublicationDate" data-enrollments="@enrollmentCount" data-rating="@averageRating">
+                    <h5><a href="@Url.Action("Promo", "Course", new { id = course.CourseId })">@course.Title</a></h5>
+                    <p><a href="@Url.Action("OtherProfile", "Account", new {userId = course.UserId})">@course.User.Username</a></p>
+                    <div class="icons-rows">
+                        <p><i class="fas fa-star"></i> @averageRating</p>
+                        <p><i class="fas fa-user"></i> @enrollmentCount</p>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
     <div class="right-content">
         @if (isUserAuthenticated)
@@ -72,13 +100,6 @@
                     </div>
                 </div>
             }
-            else { }
-
-            @* <div class="banner">
-        <h2>Хотите начать преподавать?</h2>
-        <p>Присоединяйтесь к нашему сообществу преподавателей и делитесь своим знанием с миллионами студентов!</p>
-        <a asp-controller="Course" asp-action="Teaching">Начать преподавать</a>
-        </div> *@
         }        
     </div>
 </div>

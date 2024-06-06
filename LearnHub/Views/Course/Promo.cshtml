@@ -7,7 +7,7 @@
 
 <div class="promo-container">
     <h2>@Model.Title</h2>
-    <p class="promo-description">@Html.Raw(Model.Description)</p>
+    <div class="promo-description">@Html.Raw(Model.Description)</div>
 
     <h3>Программа курса</h3>
     <ol class="promo-lesson-list">
@@ -38,16 +38,38 @@
         }
     @if (ViewBag.IsEnrolled && Model.UserId != ViewBag.User.UserId)
     {
-        <button id="showReviewButton" onclick="showReviewForm()" class="promo-btn">Оставить отзыв</button>
-        <div id="reviewForm" style="display: none;">
-            <form method="post" action="@Url.Action("LeaveReview", "Course")">
-                <input type="hidden" name="courseId" value="@Model.CourseId" />
-                <input name="grade" required />
-                <input name="comment" />
-                <button type="submit">Оставить отзыв</button>
-                <button type="button" onclick="hideReviewForm()">Отменить</button>
-            </form>
-        </div>
+            @if (ViewBag.UserReview != null)
+            {
+                <button id="showReviewButton" onclick="showReviewForm()" class="promo-btn">Изменить отзыв</button>
+                <form method="post" action="@Url.Action("DeleteReview", "Course")">
+                    <input type="hidden" name="reviewId" value="@ViewBag.UserReview.GradeId" />
+                    <button type="submit" class="delete-btn">Удалить отзыв</button>
+                </form>
+            }
+            else
+            {
+                <button id="showReviewButton" onclick="showReviewForm()" class="promo-btn">Оставить отзыв</button>
+            }
+
+            <div id="reviewForm" style="display: none;">
+                <form method="post" action="@Url.Action("LeaveReview", "Course")">
+                    <input type="hidden" name="courseId" value="@Model.CourseId" />
+                    @if (ViewBag.UserReview != null)
+                    {
+                        <input type="hidden" name="reviewId" value="@ViewBag.UserReview.GradeId" />
+                    }
+                    <div class="rating-stars">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <input type="radio" name="grade" id="star-@i" value="@i" @(ViewBag.UserReview != null && ViewBag.UserReview.Grade == i ? "checked" : "") />
+                            <label for="star-@i" class="star">&#9733;</label>
+                        }
+                    </div>
+                    <textarea name="comment" placeholder="Оставьте ваш комментарий...">@ViewBag.UserReview?.Comment</textarea>
+                    <button type="submit" class="submit-btn">Оставить отзыв</button>
+                    <button type="button" onclick="hideReviewForm()" class="cancel-btn">Отменить</button>
+                </form>
+            </div>
     }
     @if (Model.Grades.Any())
     {
