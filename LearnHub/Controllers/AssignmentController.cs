@@ -25,24 +25,6 @@ namespace LearnHub.Controllers
             return View(await learnHubContext.ToListAsync());
         }
 
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var assignments = await _context.Assignments
-                .Include(a => a.Lesson)
-                .FirstOrDefaultAsync(m => m.AssignmentId == id);
-            if (assignments == null)
-            {
-                return NotFound();
-            }
-
-            return View(assignments);
-        }
-
         public IActionResult Create(int lessonId)
         {
             ViewBag.LessonId = lessonId;
@@ -64,11 +46,11 @@ namespace LearnHub.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Assignments assignments)
+        public async Task<IActionResult> Edit(Assignments assignments, int id)
         {
             _context.Update(assignments);
             await _context.SaveChangesAsync();   
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "Lesson", new { id = assignments.LessonId });
         }
 
         [HttpPost]

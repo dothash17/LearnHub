@@ -6,9 +6,10 @@
 }
 
 <div class="teach-container">
-    <div class="row justify-content-center">
+    <div class="row justify-content-center w-100">
+        <a href="@Url.Action("Details", "Course", new { id = Model.CourseId })">Назад</a>
         <div class="col-md-9">
-            <h2>Уроки</h2>
+            <h2>Задания</h2>
         </div>
         <div class="col-md-3 text-end">
             <a class="btn btn-primary" href="@Url.Action("Create", "Assignment", new { lessonId = Model.LessonId })">Новое задание</a>
@@ -19,7 +20,6 @@
                 <li class="course-item">
                     <h3 class="course-title">@assignments.Task</h3>
                     <div class="course-actions">
-                        <a href="@Url.Action("Details", "Assignment", new { id = assignments.AssignmentId })">Содержимое</a>
                         <a href="@Url.Action("Edit", "Assignment", new { id = assignments.AssignmentId })">Редактировать</a>
                         <form asp-controller="Assignment" asp-action="Delete" asp-route-id="@assignments.AssignmentId" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить @assignments.Task?');">
                             <button type="submit" class="course-delete-btn">Удалить</button>

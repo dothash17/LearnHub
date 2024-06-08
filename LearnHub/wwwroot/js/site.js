@@ -74,200 +74,16 @@ function validateRegisterForm() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    const slides = document.querySelectorAll('.slide');
-    const pagination = document.querySelector('.pagination');
-    const sortButtons = document.querySelectorAll('.sort-button');
-    const sortButtonsList = document.querySelectorAll('.sort-buttons-list .sort-button');
-
-    sortButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            sortButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            const sortType = button.id.replace('sort-', '');
-            sortSlides(`data-${sortType}`);
-        });
-    });
-
-    sortButtonsList.forEach(button => {
-        button.addEventListener('click', () => {
-            sortButtonsList.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            const sortType = button.id.replace('sort-', '').replace('-list', '');
-            sortCoursesList(`data-${sortType}`);
-        });
-    });
-
-    slides.forEach((slide, index) => {
-        const dot = document.createElement('span');
-        dot.addEventListener('click', () => {
-            goToSlide(index);
-        });
-        pagination.appendChild(dot);
-    });
-
-    let currentSlide = 0;
-    updateSlider();
-
-    function updateSlider() {
-        slides.forEach((slide, index) => {
-            slide.style.display = index === currentSlide ? 'flex' : 'none';
-        });
-
-        const dots = pagination.querySelectorAll('span');
-        dots.forEach((dot, index) => {
-            if (index === currentSlide) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
+function scrollToBottom() {
+    var chatMessages = document.getElementById("chatMessages");
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
+}
 
-    function goToSlide(index) {
-        if (index < 0 || index >= slides.length) return;
-        currentSlide = index;
-        updateSlider();
-    }
-
-    const prevBtn = document.querySelector('.prev');
-    const nextBtn = document.querySelector('.next');
-
-    prevBtn.addEventListener('click', () => {
-        goToSlide(currentSlide - 1);
-    });
-
-    nextBtn.addEventListener('click', () => {
-        goToSlide(currentSlide + 1);
-    });
-
-    document.getElementById('sort-enrollments').addEventListener('click', () => {
-        sortSlides('data-enrollments');
-    });
-
-    document.getElementById('sort-rating').addEventListener('click', () => {
-        sortSlides('data-rating');
-    });
-
-    document.getElementById('sort-date').addEventListener('click', () => {
-        sortSlides('data-date');
-    });
-
-    document.getElementById('sort-enrollments-list').addEventListener('click', () => {
-        sortCoursesList('data-enrollments');
-    });
-
-    document.getElementById('sort-rating-list').addEventListener('click', () => {
-        sortCoursesList('data-rating');
-    });
-
-    document.getElementById('sort-date-list').addEventListener('click', () => {
-        sortCoursesList('data-date');
-    });
-
-    function sortSlides(dataAttribute) {
-        const slideContainer = document.getElementById('slide-container');
-        const slides = Array.from(slideContainer.querySelectorAll('.slide'));
-
-        const tempContainer = document.createElement('div');
-        let courses = Array.from(slideContainer.querySelectorAll('.catalog-card'));
-
-        courses.sort((a, b) => {
-            const aValue = a.getAttribute(dataAttribute);
-            const bValue = b.getAttribute(dataAttribute);
-
-            if (dataAttribute === 'data-rating' || dataAttribute === 'data-enrollments') {
-                const aNumericValue = parseFloat(aValue) || 0;
-                const bNumericValue = parseFloat(bValue) || 0;
-                return bNumericValue - aNumericValue;
-            } else {
-                const aDate = new Date(aValue);
-                const bDate = new Date(bValue);
-                return bDate - aDate;
-            }
-        });
-
-        courses.forEach(course => {
-            tempContainer.appendChild(course);
-        });
-
-        slideContainer.innerHTML = '';
-
-        const slideSize = 4;
-        slides.slice(0, 3).forEach(slide => {
-            const slideCourses = Array.from(tempContainer.querySelectorAll('.catalog-card'));
-            slideCourses.splice(slideSize).forEach(course => {
-                tempContainer.appendChild(course);
-            });
-            slideCourses.forEach(course => {
-                slide.appendChild(course);
-            });
-            slideContainer.appendChild(slide);
-        });
-
-        currentSlide = 0;
-        updateSlider();
-        updatePagination();
-    }
-
-    function sortCoursesList(dataAttribute) {
-        const courseList = document.getElementById('course-list');
-        const courses = Array.from(courseList.querySelectorAll('.courses-item'));
-
-        courses.sort((a, b) => {
-            const aValue = a.getAttribute(dataAttribute);
-            const bValue = b.getAttribute(dataAttribute);
-
-            if (dataAttribute === 'data-rating' || dataAttribute === 'data-enrollments') {
-                const aNumericValue = parseFloat(aValue) || 0;
-                const bNumericValue = parseFloat(bValue) || 0;
-                return bNumericValue - aNumericValue;
-            } else {
-                const aDate = new Date(aValue);
-                const bDate = new Date(bValue);
-                return bDate - aDate;
-            }
-        });
-
-        courseList.innerHTML = '';
-        courses.forEach(course => {
-            courseList.appendChild(course);
-        });
-    }
-
-    function updatePagination() {
-        pagination.innerHTML = '';
-        const newSlides = document.querySelectorAll('.slide');
-
-        newSlides.forEach((slide, index) => {
-            const dot = document.createElement('span');
-            dot.addEventListener('click', () => {
-                goToSlide(index);
-            });
-            pagination.appendChild(dot);
-        });
-        updateSlider();
-    }
-
-    sortSlides('data-enrollments');
-    sortCoursesList('data-enrollments');
-});
-
-document.getElementById('search-input').addEventListener('input', function () {
-    var filter = this.value.toLowerCase();
-    var courseItems = document.querySelectorAll('.courses-item');
-    courseItems.forEach(function (item) {
-        var title = item.getAttribute('data-title');
-        var author = item.getAttribute('data-author');
-        if (title.includes(filter) || author.includes(filter)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
+window.onload = function () {
+    scrollToBottom();
+};
 
 document.addEventListener("DOMContentLoaded", function () {
     var lessonContent;
@@ -338,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function recordProgress(assignmentId) {
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/Lesson/RecordProgress?assignmentId=' + assignmentId, true); 
+        xhr.open('POST', '/Lesson/RecordProgress?assignmentId=' + assignmentId, true);
         xhr.onload = function () {
             if (xhr.status === 200) {
                 console.log('Прогресс успешно записан');
@@ -426,7 +242,7 @@ CKEDITOR.ClassicEditor.create(document.getElementById("editor"), {
             { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
             { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
         ]
-    }, 
+    },
 
     fontSize: {
         options: [10, 12, 14, 'default', 18, 20, 22],
@@ -489,6 +305,201 @@ CKEDITOR.ClassicEditor.create(document.getElementById("editor"), {
     ]
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const slides = document.querySelectorAll('.slide');
+    const pagination = document.querySelector('.pagination');
+    const sortButtons = document.querySelectorAll('.sort-button');
+    const sortButtonsList = document.querySelectorAll('.sort-buttons-list .sort-button');
+
+    sortButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            sortButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            const sortType = button.id.replace('sort-sl-', '');
+            sortSlides(`data-${sortType}`);
+        });
+    });
+
+    sortButtonsList.forEach(button => {
+        button.addEventListener('click', () => {
+            sortButtonsList.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            const sortType = button.id.replace('sort-list-', '');
+            sortCoursesList(`data-${sortType}`);
+        });
+    });
+
+    slides.forEach((slide, index) => {
+        const dot = document.createElement('span');
+        dot.addEventListener('click', () => {
+            goToSlide(index);
+        });
+        pagination.appendChild(dot);
+    });
+
+    let currentSlide = 0;
+    updateSlider();
+
+    function updateSlider() {
+        slides.forEach((slide, index) => {
+            slide.style.display = index === currentSlide ? 'flex' : 'none';
+        });
+
+        const dots = pagination.querySelectorAll('span');
+        dots.forEach((dot, index) => {
+            if (index === currentSlide) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+        currentSlide = index;
+        updateSlider();
+    }
+
+    const prevBtn = document.querySelector('.prev');
+    const nextBtn = document.querySelector('.next');
+
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlide - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlide + 1);
+    });
+
+    document.getElementById('sort-sl-enrollments').addEventListener('click', () => {
+        sortSlides('data-enrollments');
+    });
+
+    document.getElementById('sort-sl-rating').addEventListener('click', () => {
+        sortSlides('data-rating');
+    });
+
+    document.getElementById('sort-sl-date').addEventListener('click', () => {
+        sortSlides('data-date');
+    });
+
+    document.getElementById('sort-list-enrollments').addEventListener('click', () => {
+        sortCoursesList('data-enrollments');
+    });
+
+    document.getElementById('sort-list-rating').addEventListener('click', () => {
+        sortCoursesList('data-rating');
+    });
+
+    document.getElementById('sort-list-date').addEventListener('click', () => {
+        sortCoursesList('data-date');
+    });
+
+    function sortSlides(dataAttribute) {
+        const slideContainer = document.getElementById('slide-container');
+        const slides = Array.from(slideContainer.querySelectorAll('.slide'));
+
+        const tempContainer = document.createElement('div');
+        let courses = Array.from(slideContainer.querySelectorAll('.catalog-card'));
+
+        courses.sort((a, b) => {
+            const aValue = a.getAttribute(dataAttribute);
+            const bValue = b.getAttribute(dataAttribute);
+
+            if (dataAttribute === 'data-rating' || dataAttribute === 'data-enrollments') {
+                const aNumericValue = parseFloat(aValue) || 0;
+                const bNumericValue = parseFloat(bValue) || 0;
+                return bNumericValue - aNumericValue;
+            } else {
+                const aDate = new Date(aValue);
+                const bDate = new Date(bValue);
+                return bDate - aDate;
+            }
+        });
+
+        courses.forEach(course => {
+            tempContainer.appendChild(course);
+        });
+
+        slideContainer.innerHTML = '';
+
+        const slideSize = 4;
+        slides.slice(0, 3).forEach(slide => {
+            const slideCourses = Array.from(tempContainer.querySelectorAll('.catalog-card'));
+            slideCourses.splice(slideSize).forEach(course => {
+                tempContainer.appendChild(course);
+            });
+            slideCourses.forEach(course => {
+                slide.appendChild(course);
+            });
+            slideContainer.appendChild(slide);
+        });
+
+        currentSlide = 0;
+        updateSlider();
+        updatePagination();
+    }
+
+    function sortCoursesList(dataAttribute) {
+        const courseList = document.getElementById('courses-list');
+        const courses = Array.from(courseList.querySelectorAll('.courses-item'));
+
+        courses.sort((a, b) => {
+            const aValue = a.getAttribute(dataAttribute);
+            const bValue = b.getAttribute(dataAttribute);
+
+            if (dataAttribute === 'data-rating' || dataAttribute === 'data-enrollments') {
+                const aNumericValue = parseFloat(aValue) || 0;
+                const bNumericValue = parseFloat(bValue) || 0;
+                return bNumericValue - aNumericValue;
+            } else {
+                const aDate = new Date(aValue);
+                const bDate = new Date(bValue);
+                return bDate - aDate;
+            }
+        });
+
+        courseList.innerHTML = '';
+        courses.forEach(course => {
+            courseList.appendChild(course);
+        });
+    }
+
+    function updatePagination() {
+        pagination.innerHTML = '';
+        const newSlides = document.querySelectorAll('.slide');
+
+        newSlides.forEach((slide, index) => {
+            const dot = document.createElement('span');
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+            });
+            pagination.appendChild(dot);
+        });
+        updateSlider();
+    }
+
+    sortSlides('data-sl-enrollments');
+    sortCoursesList('data-list-enrollments');
+});
+
+document.getElementById('search-input').addEventListener('input', function () {
+    var filter = this.value.toLowerCase();
+    var courseItems = document.querySelectorAll('.courses-item');
+    courseItems.forEach(function (item) {
+        var title = item.getAttribute('data-title');
+        var author = item.getAttribute('data-author');
+        if (title.includes(filter) || author.includes(filter)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+
 function showReviewForm() {
     document.getElementById("reviewForm").style.display = "block";
     document.getElementById("showReviewButton").style.display = "none";
@@ -512,17 +523,6 @@ document.querySelectorAll('.rating-stars input').forEach((star) => {
         });
     });
 });
-
-function scrollToBottom() {
-    var chatMessages = document.getElementById("chatMessages");
-    if (chatMessages) {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-}
-
-window.onload = function () {
-    scrollToBottom();
-};
 
 document.addEventListener('DOMContentLoaded', (event) => {
     var messageInput = document.getElementById("messageText");
