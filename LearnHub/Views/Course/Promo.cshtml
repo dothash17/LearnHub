@@ -16,7 +16,7 @@
             <li class="promo-lesson-item">@lesson.Title</li>
         }
     </ol>
-    @if (ViewBag.User != null)
+    @if (ViewBag.User != null && ViewBag.User != Model.UserId)
     {
         @if (ViewBag.IsEnrolled)
         {
@@ -36,8 +36,8 @@
         {
             <p><i class="star-icon fas fa-star"></i>@ViewBag.AverageGrade</p>
         }
-    @if (ViewBag.IsEnrolled && Model.UserId != ViewBag.User.UserId)
-    {
+        @if (ViewBag.IsEnrolled && Model.UserId != ViewBag.User)
+        {
             @if (ViewBag.UserReview != null)
             {
                 <button id="showReviewButton" onclick="showReviewForm()" class="promo-btn">Изменить отзыв</button>
@@ -70,14 +70,14 @@
                     <button type="button" onclick="hideReviewForm()" class="cancel-btn">Отменить</button>
                 </form>
             </div>
-    }
-    @if (Model.Grades.Any())
-    {
-        <p class="count-grades">@ViewBag.CountGrade @ViewBag.CountGrades</p>
-        <div class="review-container">
-            @foreach (var grade in Model.Grades)
-            {
-                <div class="review">
+        }
+        @if (Model.Grades.Any())
+        {
+            <p class="count-grades">@ViewBag.CountGrade @ViewBag.CountGrades</p>
+            <div class="review-container">
+                @foreach (var grade in Model.Grades)
+                {
+                    <div class="review">
                         @if (grade.User != null)
                         {
                             <div class="user-info">
@@ -88,7 +88,7 @@
                                 </a>
                             </div>
                         }
-                    <div class="stars">
+                        <div class="stars">
                             @for (int i = 1; i <= 5; i++)
                             {
                                 if (i <= grade.Grade)
@@ -100,17 +100,17 @@
                                     <i class="far fa-star"></i>
                                 }
                             }
+                        </div>
+                        <p class="comment">@grade.Comment</p>
+                        <p class="date">Дата: @grade.Date.ToShortDateString()</p>
                     </div>
-                    <p class="comment">@grade.Comment</p>
-                    <p class="date">Дата: @grade.Date.ToShortDateString()</p>
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <p>Пока нет отзывов.</p>
-    }
-</div>
-    
+                }
+            </div>
+        }
+        else
+        {
+            <br>
+            <span>Пока нет отзывов.</span>
+        }
+    </div>
 </div>

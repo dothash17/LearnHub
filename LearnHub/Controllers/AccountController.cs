@@ -53,7 +53,7 @@ namespace LearnHub.Controllers
             var currentUser = HttpContext.Session.GetString("CurrentUser");
             var user = await _userService.GetUserByUsernameAsync(currentUser);
 
-            if (user.UserId == userId)
+            if (user?.UserId == userId)
             {
                 return RedirectToAction("Profile");
             }
@@ -148,7 +148,6 @@ namespace LearnHub.Controllers
 
             existingUser.LastName = user.LastName;
             existingUser.FirstName = user.FirstName;
-            existingUser.Email = user.Email;
 
             if (AvatarFile != null && AvatarFile.Length > 0)
             {
@@ -173,11 +172,39 @@ namespace LearnHub.Controllers
             return RedirectToAction("Profile");
         }
 
-        [HttpGet]
-        public IActionResult Register()
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(string CurrentPassword, string NewPassword, string ConfirmNewPassword)
         {
-            return View();
+            var currentUser = HttpContext.Session.GetString("CurrentUser");
+            var existingUser = await _userService.GetUserByUsernameAsync(currentUser);
+
+            if (!BCrypt.Net.BCrypt.Verify(CurrentPassword, existingUser.Password))
+            {
+                ModelState.AddModelError(string.Empty, "Текущий пароль неверен.");
+                TempData["ActiveTab"] = "password";
+                return View("Settings", existingUser);
+            }
+
+            if (BCrypt.Net.BCrypt.Verify(NewPassword, existingUser.Password))
+            {
+                ModelState.AddModelError(string.Empty, "Новый пароль не должен совпадать с текущим паролем.");
+                TempData["ActiveTab"] = "password";
+                return View("Settings", existingUser);
+            }
+
+            if (NewPassword != ConfirmNewPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Новый пароль и подтверждение пароля не совпадают.");
+                TempData["ActiveTab"] = "password";
+                return View("Settings", existingUser);
+            }
+
+            existingUser.Password = BCrypt.Net.BCrypt.HashPassword(NewPassword);
+            await _userService.UpdateUserAsync(existingUser);
+
+            return RedirectToAction("Profile");
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Register(Users model, string confirmPassword)
@@ -219,12 +246,6 @@ namespace LearnHub.Controllers
             HttpContext.Session.SetString("CurrentUser", model.Username);
 
             return Ok();
-        }
-
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
         }
 
         [HttpPost]

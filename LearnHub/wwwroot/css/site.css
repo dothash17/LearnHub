@@ -492,6 +492,11 @@ input.nosubmit {
     border-radius: 50%;
 }
 
+.avatar-img-set {
+    max-width: 150px;
+    border-radius: 50%;
+}
+
 .card-profile {
     position: relative;
     display: flex;
@@ -604,15 +609,6 @@ input.nosubmit {
     margin-left: 250px;
     text-align: left;
 }
-
-    .promo-container figure.image {
-        aspect-ratio: 16 / 9;
-    }
-
-    .promo-container img {
-        max-width: 100%;
-        max-height: 100%;
-    }
 
 .promo-description {
     margin-bottom: 20px;
@@ -855,7 +851,7 @@ input.nosubmit {
 
     .review .comment {
         margin-bottom: 10px;
-        font-size: 22px;
+        font-size: 16px;
         color: #333;
     }
 
@@ -870,7 +866,11 @@ input.nosubmit {
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 16px;
+    font-size: 16px;    
+}
+
+.input-field:focus {
+    outline: none;
 }
 
 .check-button {

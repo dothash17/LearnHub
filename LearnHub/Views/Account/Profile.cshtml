@@ -62,7 +62,11 @@
         <div class="card-profile mb-3">
             <div class="card-body-profile">
                 <h6>Календарь активности</h6>
-                <div id="cal-heatmap"></div>
+                <div id="cal-heatmap" class="col-md-12"></div>
+                <div class="col-md-12">
+                    <label class="label label-default" id="previousSelector-a-previous">Предыдущий год</label>
+                    <label class="label label-default" id="previousSelector-a-next">Следующий год</label>
+                </div>
             </div>
         </div>
     </div>
@@ -71,49 +75,57 @@
 @section Scripts {
     <script>
         var activityData = @Html.Raw(activityDataJson);
-        const cal = new CalHeatmap();
-        cal.paint({
-            itemSelector: "#cal-heatmap",
-            data: {
-                source: activityData,
-                type: "json",
-                x: "date",
-                y: "count"
+        var transformedData = {};
+        for (const [key, value] of Object.entries(activityData)) {
+            const timestamp = new Date(key).getTime() / 1000;
+            transformedData[timestamp] = value;
+        }
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        var cal = new CalHeatMap();
+        cal.init({
+            data: transformedData,
+            domain: "month",
+            subDomain: "day",
+            cellRadius: 3,
+            previousSelector: "#previousSelector-a-previous",
+            nextSelector: "#previousSelector-a-next",
+            tooltip: true,
+            itemName: ["task", "tasks"],
+            subDomainTitleFormat: {
+                empty: '{date} </br> Решено задач: 0',
+                filled: '{date} </br> Решено задач: {count}'
             },
-            date: {
-                start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            domainLabelFormat: "%Y-%m",
+            subDomainDateFormat: "%d",
+            range: 12,
+            start: new Date(new Date().getFullYear(), 0, 1),
+            legend: [1, 2, 3, 4],
+            legendColors: {
+                min: "#efefef",
+                max: "green",
+                empty: "#efefef"
             },
-            range: 12,  // Display 12 months
-            cellSize: 12,
-            domain: {
-                type: "month",
-                label: {
-                    position: "top",
-                    format: (date) => date.toLocaleDateString('ru-RU', { month: 'long' })
+            legendVerticalPosition: "top",
+            legendHorizontalPosition: "right",
+            legendMargin: [0, 0, 0, 10],
+            label: {
+                position: "top",
+                offset: {
+                    x: 0,
+                    y: 0
                 }
             },
-            subDomain: {
-                type: "day",
-                label: (date) => date.toLocaleDateString('ru-RU', { weekday: 'short' }),
-                weekStartOnMonday: true,
-                color: {
-                    scale: ["#ededed", "#1a9850"],
-                    type: "value",
-                    domain: [0, 10]
+            onMouseOver: function (date, count) {
+                var tooltip = document.querySelector('.cal-heatmap-tooltip');
+                if (tooltip) {
+                    tooltip.style.left = (event.pageX - tooltip.clientWidth / 2) + 'px';
+                    tooltip.style.top = (event.pageY - tooltip.clientHeight - 10) + 'px';
                 }
-            },
-            legend: [0, 1, 2, 3, 4, 5],  // Legend for color scale
-            tooltip: {
-                enabled: true,
-                formatter: {
-                    date: (date) => date.toLocaleDateString('ru-RU', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    }),
-                    count: (count) => count + ' ' + (count === 1 ? 'решенная задача' : 'решенных задач')
-                }
-            },
+            }
         });
     </script>
 }

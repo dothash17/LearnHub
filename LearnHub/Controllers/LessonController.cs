@@ -29,7 +29,11 @@ namespace LearnHub.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var lesson = await _context.Lessons.Include(l => l.Assignments).FirstOrDefaultAsync(c => c.LessonId == id);
+            var lesson = await _context.Lessons
+                .Include(l => l.Assignments)
+                .Include(l => l.Course)
+                .FirstOrDefaultAsync(c => c.LessonId == id);
+            ViewBag.CourseOnDraft = lesson.Course.Status == "Draft";
             return View(lesson);
         }
 

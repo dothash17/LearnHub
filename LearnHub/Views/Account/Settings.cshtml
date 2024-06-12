@@ -3,27 +3,84 @@
 @{
     ViewData["Title"] = "Настройки аккаунта";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var activeTab = TempData["ActiveTab"] as string ?? "basic";
 }
 
-<form asp-action="Settings" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-        <label asp-for="Avatar">Загрузить новую аватарку</label>
-        <input type="file" name="AvatarFile" class="form-control-file" />
-    </div>
-    @if (!string.IsNullOrEmpty(Model.Avatar))
-    {
-        <div class="form-group">
-            <label>Текущая аватарка</label>
-            <img src="@Model.Avatar" alt="Current Avatar" class="avatar-img" />
+<div class="row justify-content-center pt-5">
+    <div class="col-md-9">
+        <ul class="nav nav-tabs mb-3" id="settingsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @(activeTab == "basic" ? "active" : "")" id="basic-tab" data-bs-toggle="tab" href="#basic" role="tab" aria-controls="basic" aria-selected="@(activeTab == "basic")">Основные</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @(activeTab == "password" ? "active" : "")" id="password-tab" data-bs-toggle="tab" href="#password" role="tab" aria-controls="password" aria-selected="@(activeTab == "password")">Сменить пароль</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="settingsTabsContent">
+            <div class="tab-pane fade @(activeTab == "basic" ? "show active" : "")" id="basic" role="tabpanel" aria-labelledby="basic-tab">
+                <form asp-action="Settings" method="post" enctype="multipart/form-data">
+                    <div class="form-group mb-3">
+                        <img src="@Model.Avatar" alt="Current Avatar" class="avatar-img-set" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <input type="file" name="AvatarFile" class="form-control-file" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="FirstName">Имя</label>
+                        <input asp-for="FirstName" class="form-control" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="LastName">Фамилия</label>
+                        <input asp-for="LastName" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Обновить настройки</button>
+                    <input type="hidden" name="ActiveTab" value="basic" />
+                </form>
+            </div>
+            <div class="tab-pane fade @(activeTab == "password" ? "show active" : "")" id="password" role="tabpanel" aria-labelledby="password-tab">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                    </div>
+                }
+                <form asp-action="ChangePassword" method="post">
+                    <div class="form-group mb-3">
+                        <label for="CurrentPassword">Текущий пароль</label>
+                        <input type="password" name="CurrentPassword" class="form-control" required />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="NewPassword">Новый пароль</label>
+                        <input type="password" name="NewPassword" class="form-control" required />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="ConfirmNewPassword">Подтвердите новый пароль</label>
+                        <input type="password" name="ConfirmNewPassword" class="form-control" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Изменить пароль</button>
+                    <input type="hidden" name="ActiveTab" value="password" />
+                </form>
+            </div>
         </div>
-    }
-    <div class="form-group">
-        <label asp-for="FirstName">Имя</label>
-        <input asp-for="FirstName" class="form-control" />
     </div>
-    <div class="form-group">
-        <label asp-for="LastName">Фамилия</label>
-        <input asp-for="LastName" class="form-control" />
-    </div>   
-    <button type="submit" class="btn btn-primary">Обновить настройки</button>
-</form>
+</div>
+
+@section Scripts {
+    <script>
+        var triggerTabList = [].slice.call(document.querySelectorAll('#settingsTabs a'))
+        triggerTabList.forEach(function (triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl)
+
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault()
+                document.querySelector('input[name="ActiveTab"]').value = triggerEl.id.split('-')[0];
+                tabTrigger.show()
+            })
+        })
+    </script>
+}

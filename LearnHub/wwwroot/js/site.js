@@ -85,6 +85,30 @@ window.onload = function () {
     scrollToBottom();
 };
 
+function showReviewForm() {
+    document.getElementById("reviewForm").style.display = "block";
+    document.getElementById("showReviewButton").style.display = "none";
+}
+
+function hideReviewForm() {
+    document.getElementById("reviewForm").style.display = "none";
+    document.getElementById("showReviewButton").style.display = "block";
+}
+
+document.querySelectorAll('.rating-stars input').forEach((star) => {
+    star.addEventListener('change', function () {
+        let stars = document.querySelectorAll('.rating-stars .star');
+        let checkedValue = this.value;
+        stars.forEach((label, index) => {
+            if (index < checkedValue) {
+                label.classList.add('checked');
+            } else {
+                label.classList.remove('checked');
+            }
+        });
+    });
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     var lessonContent;
 
@@ -107,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     input.id = 'answer-input-' + index;
                     input.placeholder = 'Введите ваш ответ';
                     input.className = 'input-field';
+                    input.autocomplete = "off";
                     assignmentsContainer.appendChild(input);
 
                     var button = document.createElement('button');
@@ -147,6 +172,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (userAnswer === correctAnswer || correctAnswer.includes(userAnswer)) {
             showNotification('Правильный ответ!', false);
             recordProgress(assignmentId);
+            var input = document.getElementById('answer-input-' + assignmentIndex);
+            var button = input.nextElementSibling;
+            input.disabled = true;
+            button.disabled = true;
+            button.className += ' disabled';
         } else {
             showNotification('Неправильный ответ. Попробуйте еще раз.', true);
         }
@@ -178,6 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function loadCurrentLesson() {
         var lessonId = lessonItems[currentLessonIndex].dataset.lessonId;
         loadLessonContent(lessonId);
+        window.scrollTo(0, 0);
     }
 
     updateActiveLesson();
@@ -196,6 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
             currentLessonIndex--;
             updateActiveLesson();
             loadCurrentLesson();
+            window.scrollTo(0, 0);
         }
     });
 
@@ -204,6 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
             currentLessonIndex++;
             updateActiveLesson();
             loadCurrentLesson();
+            window.scrollTo(0, 0);
         }
     });
 });
@@ -218,11 +251,13 @@ CKEDITOR.ClassicEditor.create(document.getElementById("editor"), {
             'outdent', 'indent', '|',
             'undo', 'redo',
             '-',
-            'link', 'uploadImage', 'blockQuote', 'insertTable', 'codeBlock', '|',
+            'link', 'uploadImage', 'mediaEmbed', 'blockQuote', 'insertTable', 'codeBlock', '|',
             'specialCharacters', 'horizontalLine', 'pageBreak', '|',
         ],
         shouldNotGroupWhenFull: true
     },
+
+    mediaEmbed: { previewsInData: true },
 
     list: {
         properties: {
@@ -308,7 +343,7 @@ CKEDITOR.ClassicEditor.create(document.getElementById("editor"), {
 document.addEventListener("DOMContentLoaded", function () {
     const slides = document.querySelectorAll('.slide');
     const pagination = document.querySelector('.pagination');
-    const sortButtons = document.querySelectorAll('.sort-button');
+    const sortButtons = document.querySelectorAll('.sort-buttons .sort-button');
     const sortButtonsList = document.querySelectorAll('.sort-buttons-list .sort-button');
 
     sortButtons.forEach(button => {
@@ -355,6 +390,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 dot.classList.remove('active');
             }
         });
+
+        const prevBtn = document.querySelector('.prev');
+        const nextBtn = document.querySelector('.next');
+        if (currentSlide === 0) {
+            prevBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'block';
+        }
+        if (currentSlide === 2) {
+            nextBtn.style.display = 'none';
+        } else {
+            nextBtn.style.display = 'block';
+        }
     }
 
     function goToSlide(index) {
@@ -444,7 +492,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function sortCoursesList(dataAttribute) {
-        const courseList = document.getElementById('courses-list');
+        const courseList = document.getElementById('course-list');
         const courses = Array.from(courseList.querySelectorAll('.courses-item'));
 
         courses.sort((a, b) => {
@@ -482,8 +530,8 @@ document.addEventListener("DOMContentLoaded", function () {
         updateSlider();
     }
 
-    sortSlides('data-sl-enrollments');
-    sortCoursesList('data-list-enrollments');
+    sortSlides('data-enrollments');
+    sortCoursesList('data-enrollments');
 });
 
 document.getElementById('search-input').addEventListener('input', function () {
@@ -497,30 +545,6 @@ document.getElementById('search-input').addEventListener('input', function () {
         } else {
             item.style.display = 'none';
         }
-    });
-});
-
-function showReviewForm() {
-    document.getElementById("reviewForm").style.display = "block";
-    document.getElementById("showReviewButton").style.display = "none";
-}
-
-function hideReviewForm() {
-    document.getElementById("reviewForm").style.display = "none";
-    document.getElementById("showReviewButton").style.display = "block";
-}
-
-document.querySelectorAll('.rating-stars input').forEach((star) => {
-    star.addEventListener('change', function () {
-        let stars = document.querySelectorAll('.rating-stars .star');
-        let checkedValue = this.value;
-        stars.forEach((label, index) => {
-            if (index < checkedValue) {
-                label.classList.add('checked');
-            } else {
-                label.classList.remove('checked');
-            }
-        });
     });
 });
 

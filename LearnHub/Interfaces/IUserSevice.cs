@@ -1,5 +1,4 @@
 ﻿using LearnHub.Models;
-using System.Threading.Tasks;
 
 namespace LearnHub.Interfaces
 {

@@ -53,7 +53,7 @@ namespace LearnHub.Controllers
 
             _context.Add(course);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Teaching));
+            return RedirectToAction("Details", new {id = course.CourseId});
         }
 
         [HttpPost]
@@ -69,6 +69,7 @@ namespace LearnHub.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var course = await _context.Courses.Include(l => l.Lessons).FirstOrDefaultAsync(c => c.CourseId == id);
+            ViewBag.CourseOnDraft = course.Status == "Draft";
             return View(course);
         }
 
@@ -103,7 +104,7 @@ namespace LearnHub.Controllers
 
             var isEnrolled = course.Enrollments.Any(e => e.UserId == user?.UserId);
             ViewBag.IsEnrolled = isEnrolled;
-            ViewBag.User = user;
+            ViewBag.User = user?.UserId;
 
             if (course.Grades.Any())
             {
@@ -130,7 +131,7 @@ namespace LearnHub.Controllers
 
                 ViewBag.CountGrade = countGrade;
 
-                var userReview = course.Grades.FirstOrDefault(g => g.UserId == user.UserId);
+                var userReview = course?.Grades?.FirstOrDefault(g => g.UserId == user?.UserId);
                 ViewBag.UserReview = userReview;
             }
 
